@@ -23,6 +23,10 @@ from backend.ml.input_pipeline import (
     prepare_uploaded_csv,
 )
 
+from backend.ml.pcap_adapter import (
+    prepare_uploaded_pcap,
+)
+
 from world_model.attack_stage import (
     get_primary_stage,
     get_scenario_stages,
@@ -110,6 +114,7 @@ def _get_stage(
 
 def _save_upload(
     file: UploadFile,
+    allowed_suffixes: set[str] | None = None,
 ) -> tuple[Path, Path]:
 
     if not file.filename:
@@ -122,10 +127,25 @@ def _save_upload(
         file.filename
     ).suffix.lower()
 
-    if suffix != ".csv":
+    if allowed_suffixes is None:
+        allowed_suffixes = {
+            ".csv",
+            ".pcap",
+            ".pcapng",
+            ".cap",
+        }
+
+    if suffix not in allowed_suffixes:
+        allowed_text = ", ".join(
+            sorted(allowed_suffixes)
+        )
+
         raise HTTPException(
             status_code=400,
-            detail="This endpoint accepts CSV files.",
+            detail=(
+                "Unsupported input format. "
+                f"Accepted formats: {allowed_text}."
+            ),
         )
 
     upload_dir = (
@@ -145,6 +165,57 @@ def _save_upload(
     )
 
     return temp_path, upload_dir
+
+
+def _prepare_uploaded_input(
+    path: Path,
+    scenario: int | None = None,
+) -> tuple[dict, str]:
+    """
+    Convert CSV or PCAP-family input into the existing
+    world-model inference representation.
+
+    CSV keeps the existing CTU13 input pipeline unchanged.
+    PCAP/PCAPNG/CAP is converted to 30-second temporal
+    states containing the same 12 model features.
+    """
+
+    suffix = path.suffix.lower()
+
+    if suffix == ".csv":
+        result = prepare_uploaded_csv(
+            path,
+            scenario=scenario,
+        )
+        return result, "csv"
+
+    if suffix in {
+        ".pcap",
+        ".pcapng",
+        ".cap",
+    }:
+        if scenario is not None:
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "The scenario parameter is only valid for CSV "
+                    "CTU13 input. PCAP input does not contain a "
+                    "CTU13 scenario identifier."
+                ),
+            )
+
+        result = prepare_uploaded_pcap(
+            path,
+        )
+        return result, "pcap"
+
+    raise HTTPException(
+        status_code=400,
+        detail=(
+            "Unsupported input format. "
+            "Accepted formats: .csv, .pcap, .pcapng, .cap."
+        ),
+    )
 
 
 def _build_world_model_sequences(
@@ -413,7 +484,8 @@ async def run_csv_inference(
     )
 
     temp_path, _ = _save_upload(
-        file
+        file,
+        allowed_suffixes={".csv"},
     )
 
     try:
@@ -501,7 +573,7 @@ async def run_csv_inference(
 
 
 # ============================================================
-# CSV -> TRAINED WORLD MODEL RISK ROLLOUT
+# CSV / PCAP -> TRAINED WORLD MODEL RISK ROLLOUT
 # ============================================================
 
 @router.post("/risk")
@@ -512,7 +584,11 @@ async def world_model_risk(
     """
     Run the trained CTU13 risk world model.
 
-    The complete uploaded scenario is converted into
+    CSV input keeps the existing CTU13 pipeline.
+    PCAP/PCAPNG/CAP input is converted into the same
+    30-second temporal feature representation first.
+
+    The complete uploaded input is converted into
     chronological 5-state windows.
 
     Raw risk logits from all windows are collected first
@@ -525,6 +601,7 @@ async def world_model_risk(
         - trained stage prediction
         - MITRE interpretation
         - feature-level evidence
+        - packet-level evidence when the source is PCAP
     """
 
     _validate_scenario(
@@ -532,7 +609,13 @@ async def world_model_risk(
     )
 
     temp_path, _ = _save_upload(
-        file
+        file,
+        allowed_suffixes={
+            ".csv",
+            ".pcap",
+            ".pcapng",
+            ".cap",
+        },
     )
 
     try:
@@ -543,7 +626,7 @@ async def world_model_risk(
             content
         )
 
-        result = prepare_uploaded_csv(
+        result, input_source = _prepare_uploaded_input(
             temp_path,
             scenario=scenario,
         )
@@ -555,6 +638,14 @@ async def world_model_risk(
         payload = result[
             "payload"
         ]
+
+        packet_evidence = result.get(
+            "packet_evidence"
+        )
+
+        pcap_metadata = result.get(
+            "pcap_metadata"
+        )
 
         # --------------------------------------------------------
         # Scenario detection
@@ -586,9 +677,8 @@ async def world_model_risk(
         # --------------------------------------------------------
         # Trained stage prediction on the latest 5-state history
         #
-        # payload["sequence"] is the canonical normalized
-        # 5 x 12 sequence produced by the existing input
-        # pipeline.
+        # payload["sequence"] is the canonical 5 x 12 sequence
+        # produced by the existing input pipeline or PCAP adapter.
         # --------------------------------------------------------
 
         stage_prediction = (
@@ -616,13 +706,26 @@ async def world_model_risk(
             "success": True,
 
             "pipeline": (
-                "CSV → CTU13 Risk World Model "
-                "+ Stage Head"
+                (
+                    "PCAP → 30-second temporal aggregation → "
+                    "CTU13 Risk World Model + Stage Head"
+                )
+                if input_source == "pcap"
+                else (
+                    "CSV → CTU13 Risk World Model "
+                    "+ Stage Head"
+                )
             ),
+
+            "input_source": input_source,
 
             "filename": file.filename,
 
             "scenario": detected_scenario,
+
+            "pcap_metadata": pcap_metadata,
+
+            "packet_evidence": packet_evidence,
 
             "states": len(
                 dataframe
@@ -646,7 +749,7 @@ async def world_model_risk(
             # Existing documented mapping.
             "stage_interpretation": stage,
 
-            # New trained stage classifier.
+            # Existing trained stage classifier.
             "trained_stage_prediction": (
                 stage_prediction
             ),
@@ -670,13 +773,21 @@ async def world_model_risk(
 
                 "port_attribution": None,
 
+                "packet_evidence_available": (
+                    input_source == "pcap"
+                ),
+
+                "packet_evidence": packet_evidence,
+
                 "note": (
-                    "The CTU13 world-model input contains "
-                    "12 aggregated traffic features rather "
-                    "than raw source/destination port fields. "
-                    "Therefore the API reports feature-level "
-                    "traffic evidence but does not fabricate "
-                    "port attribution."
+                    "CSV input exposes the existing "
+                    "aggregated feature evidence. PCAP input "
+                    "additionally exposes packet-level telemetry "
+                    "such as TCP flags, destination-port diversity, "
+                    "scan entropy, IP cardinality, packet size, "
+                    "TTL, and TCP-window statistics. These packet "
+                    "features are evidence fields and are not "
+                    "additional trained model inputs."
                 ),
             },
 
@@ -704,6 +815,9 @@ async def world_model_risk(
                 ),
             },
         }
+
+    except HTTPException:
+        raise
 
     except Exception as exc:
 
