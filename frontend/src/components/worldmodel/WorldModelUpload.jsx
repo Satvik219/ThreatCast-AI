@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-
+import FlaggedFlowsPanel from "./FlaggedFlowsPanel";
 
 const API_URL =
   "http://127.0.0.1:8000/api/world-model/risk";
@@ -778,13 +778,13 @@ export default function WorldModelUpload() {
 
 
           {/* ==================================================
-              PACKET / PORT / FLAG ATTRIBUTION
+              FLAGGED FLOW ATTRIBUTION
           ================================================== */}
 
           {inputSource === "pcap" &&
             packetAttribution && (
 
-              <PacketAttribution
+              <FlaggedFlowsPanel
                 attribution={
                   packetAttribution
                 }
