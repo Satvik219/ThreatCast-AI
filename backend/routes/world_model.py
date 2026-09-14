@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 from fastapi import (
     APIRouter,
@@ -27,6 +28,10 @@ from backend.ml.pcap_adapter import (
     prepare_uploaded_pcap,
 )
 
+from backend.ml.pcap_attribution import (
+    analyze_pcap_attribution,
+)
+
 from world_model.attack_stage import (
     get_primary_stage,
     get_scenario_stages,
@@ -42,9 +47,33 @@ from world_model.stage_inference import (
 )
 
 
+# ============================================================
+# ROUTER
+# ============================================================
+
 router = APIRouter(
     prefix="/api/world-model",
     tags=["World Model"],
+)
+
+
+# ============================================================
+# CONSTANTS
+# ============================================================
+
+CSV_SUFFIXES = {
+    ".csv",
+}
+
+PCAP_SUFFIXES = {
+    ".pcap",
+    ".pcapng",
+    ".cap",
+}
+
+WORLD_MODEL_SUFFIXES = (
+    CSV_SUFFIXES
+    | PCAP_SUFFIXES
 )
 
 
@@ -55,10 +84,18 @@ router = APIRouter(
 def _validate_scenario(
     scenario: int | None,
 ) -> None:
-    if scenario is not None and not 1 <= scenario <= 13:
+
+    if (
+        scenario is not None
+        and not 1 <= scenario <= 13
+    ):
+
         raise HTTPException(
             status_code=400,
-            detail="CTU13 scenario must be between 1 and 13.",
+            detail=(
+                "CTU13 scenario must be "
+                "between 1 and 13."
+            ),
         )
 
 
@@ -66,12 +103,8 @@ def _detect_scenario(
     dataframe,
     scenario: int | None,
 ) -> int | None:
-    """
-    Resolve the scenario from the explicit query parameter
-    or from the uploaded dataframe.
 
-    Explicit scenario always takes priority.
-    """
+    # Explicit scenario always wins.
 
     if scenario is not None:
         return int(scenario)
@@ -80,9 +113,13 @@ def _detect_scenario(
         "Scenario" in dataframe.columns
         and len(dataframe) > 0
     ):
+
         try:
+
             detected = int(
-                dataframe["Scenario"].iloc[-1]
+                dataframe[
+                    "Scenario"
+                ].iloc[-1]
             )
 
             if 1 <= detected <= 13:
@@ -114,10 +151,11 @@ def _get_stage(
 
 def _save_upload(
     file: UploadFile,
-    allowed_suffixes: set[str] | None = None,
+    allowed_suffixes: set[str],
 ) -> tuple[Path, Path]:
 
     if not file.filename:
+
         raise HTTPException(
             status_code=400,
             detail="No filename supplied.",
@@ -127,24 +165,19 @@ def _save_upload(
         file.filename
     ).suffix.lower()
 
-    if allowed_suffixes is None:
-        allowed_suffixes = {
-            ".csv",
-            ".pcap",
-            ".pcapng",
-            ".cap",
-        }
-
     if suffix not in allowed_suffixes:
-        allowed_text = ", ".join(
-            sorted(allowed_suffixes)
+
+        allowed = ", ".join(
+            sorted(
+                allowed_suffixes
+            )
         )
 
         raise HTTPException(
             status_code=400,
             detail=(
-                "Unsupported input format. "
-                f"Accepted formats: {allowed_text}."
+                "Unsupported file type. "
+                f"Allowed: {allowed}"
             ),
         )
 
@@ -161,59 +194,85 @@ def _save_upload(
 
     temp_path = (
         upload_dir
-        / Path(file.filename).name
+        / Path(
+            file.filename
+        ).name
     )
 
-    return temp_path, upload_dir
+    return (
+        temp_path,
+        upload_dir,
+    )
 
 
 def _prepare_uploaded_input(
     path: Path,
     scenario: int | None = None,
-) -> tuple[dict, str]:
-    """
-    Convert CSV or PCAP-family input into the existing
-    world-model inference representation.
-
-    CSV keeps the existing CTU13 input pipeline unchanged.
-    PCAP/PCAPNG/CAP is converted to 30-second temporal
-    states containing the same 12 model features.
-    """
+) -> dict[str, Any]:
 
     suffix = path.suffix.lower()
 
+    # --------------------------------------------------------
+    # CSV
+    # --------------------------------------------------------
+
     if suffix == ".csv":
+
         result = prepare_uploaded_csv(
             path,
             scenario=scenario,
         )
-        return result, "csv"
 
-    if suffix in {
-        ".pcap",
-        ".pcapng",
-        ".cap",
-    }:
+        result[
+            "input_source"
+        ] = "csv"
+
+        result[
+            "packet_evidence"
+        ] = None
+
+        result[
+            "pcap_metadata"
+        ] = None
+
+        return result
+
+    # --------------------------------------------------------
+    # PCAP
+    # --------------------------------------------------------
+
+    if suffix in PCAP_SUFFIXES:
+
+        # A CTU13 scenario number cannot be inferred from an
+        # arbitrary raw PCAP, so do not silently attach one.
+
         if scenario is not None:
+
             raise HTTPException(
                 status_code=400,
                 detail=(
-                    "The scenario parameter is only valid for CSV "
-                    "CTU13 input. PCAP input does not contain a "
-                    "CTU13 scenario identifier."
+                    "The scenario parameter is only "
+                    "supported for CTU13 CSV input. "
+                    "Raw PCAP input does not contain "
+                    "a CTU13 scenario label."
                 ),
             )
 
         result = prepare_uploaded_pcap(
-            path,
+            path
         )
-        return result, "pcap"
+
+        result[
+            "input_source"
+        ] = "pcap"
+
+        return result
 
     raise HTTPException(
         status_code=400,
         detail=(
-            "Unsupported input format. "
-            "Accepted formats: .csv, .pcap, .pcapng, .cap."
+            "Unsupported world-model input. "
+            "Use CSV, PCAP, PCAPNG, or CAP."
         ),
     )
 
@@ -223,9 +282,12 @@ def _build_world_model_sequences(
 ) -> list[list[list[float]]]:
 
     if len(dataframe) < SEQUENCE_LENGTH:
+
         raise ValueError(
-            f"At least {SEQUENCE_LENGTH} temporal states "
-            f"are required. Received {len(dataframe)}."
+            f"At least "
+            f"{SEQUENCE_LENGTH} temporal states "
+            f"are required. "
+            f"Received {len(dataframe)}."
         )
 
     values = (
@@ -244,7 +306,8 @@ def _build_world_model_sequences(
     ):
 
         start_index = (
-            end_index - SEQUENCE_LENGTH
+            end_index
+            - SEQUENCE_LENGTH
         )
 
         sequence = values[
@@ -259,34 +322,24 @@ def _build_world_model_sequences(
 
 
 # ============================================================
-# ATT&CK ACTIVITY INTERPRETATION
+# DOCUMENTED ATT&CK INTERPRETATION
 # ============================================================
 
-@router.get("/stage/{scenario}")
+@router.get(
+    "/stage/{scenario}"
+)
 def get_stage(
     scenario: int,
 ):
     """
-    Return both:
-
-    1. The documented CTU13 activity -> ATT&CK interpretation.
-    2. The trained weakly-supervised stage prediction.
-
-    IMPORTANT:
-    CTU13 does not contain timestamp-level ground-truth
-    MITRE ATT&CK tactic labels.
-
-    Therefore the trained stage head is explicitly reported
-    as weakly supervised rather than ground-truth supervised.
+    Return the documented CTU13 activity
+    interpretation and the trained weakly-
+    supervised auxiliary stage prediction.
     """
 
     _validate_scenario(
         scenario
     )
-
-    # --------------------------------------------------------
-    # Existing documented CTU13 interpretation
-    # --------------------------------------------------------
 
     stages = get_scenario_stages(
         scenario
@@ -295,14 +348,6 @@ def get_stage(
     primary = get_primary_stage(
         scenario
     )
-
-    # --------------------------------------------------------
-    # Build a real 5-state sequence from the canonical CTU13
-    # dataset for stage inference.
-    #
-    # The stage endpoint is scenario-based, so this endpoint
-    # uses the latest available five states from that scenario.
-    # --------------------------------------------------------
 
     try:
 
@@ -313,8 +358,9 @@ def get_stage(
         )
 
         if not dataset_path.exists():
+
             raise FileNotFoundError(
-                f"CTU13 dataset not found: "
+                "CTU13 dataset not found: "
                 f"{dataset_path}"
             )
 
@@ -331,34 +377,32 @@ def get_stage(
             "payload"
         ]
 
-        sequence = payload[
-            "sequence"
-        ]
-
         trained_prediction = (
             predict_stage_with_evidence(
-                sequence,
+                payload[
+                    "sequence"
+                ],
                 scenario=scenario,
             )
         )
 
         return {
             "success": True,
+
             "scenario": scenario,
 
-            # Existing documented interpretation.
             "primary_stage": primary,
+
             "stages": stages,
 
-            # New trained prediction.
             "trained_stage_prediction": (
                 trained_prediction
             ),
 
             "source": (
                 "CTU13 documented activity "
-                "interpretation + frozen weakly-supervised "
-                "stage head"
+                "interpretation + frozen "
+                "weakly-supervised stage head"
             ),
 
             "trained_stage_classifier": True,
@@ -383,23 +427,20 @@ def get_stage(
                 False
             ),
 
-            "note": (
-                "The stage head predicts Discovery, "
-                "Command and Control, and Impact from "
-                "the frozen 64-D CTU13 world-model latent. "
-                "CTU13 does not provide timestamp-level "
-                "ground-truth MITRE ATT&CK labels, so "
-                "stage predictions are weakly supervised "
-                "and should not be described as "
-                "ground-truth MITRE classification."
-            ),
-
             "states_used": len(
                 dataframe
             ),
 
             "sequence_length": (
                 SEQUENCE_LENGTH
+            ),
+
+            "note": (
+                "CTU13 does not provide "
+                "timestamp-level ground-truth "
+                "MITRE ATT&CK labels. Stage "
+                "predictions are therefore "
+                "weakly supervised."
             ),
         }
 
@@ -421,12 +462,10 @@ def get_stage(
 # STAGE MODEL INFORMATION
 # ============================================================
 
-@router.get("/stage-model-info")
+@router.get(
+    "/stage-model-info"
+)
 def stage_model_info():
-    """
-    Return metadata for the trained weakly-supervised
-    MITRE stage head.
-    """
 
     try:
 
@@ -440,8 +479,8 @@ def stage_model_info():
         raise HTTPException(
             status_code=500,
             detail=(
-                "Unable to load stage model information: "
-                f"{exc}"
+                "Unable to load stage model "
+                f"information: {exc}"
             ),
         ) from exc
 
@@ -450,34 +489,54 @@ def stage_model_info():
 # PRODUCTION LSTM MODEL INFORMATION
 # ============================================================
 
-@router.get("/model-info")
+@router.get(
+    "/model-info"
+)
 def model_info():
+
     return {
-        "model": "CTU13 LSTM Early Warning",
-        "sequence_length": SEQUENCE_LENGTH,
-        "feature_count": len(FEATURE_NAMES),
-        "features": FEATURE_NAMES,
-        "input_format": (
-            "5 temporal states × 12 features"
+        "model": (
+            "CTU13 LSTM Early Warning"
         ),
-        "state_duration": "30 seconds",
-        "temporal_context": "150 seconds",
+
+        "sequence_length": (
+            SEQUENCE_LENGTH
+        ),
+
+        "feature_count": (
+            len(FEATURE_NAMES)
+        ),
+
+        "features": FEATURE_NAMES,
+
+        "input_format": (
+            "5 temporal states × "
+            "12 features"
+        ),
+
+        "state_duration": (
+            "30 seconds"
+        ),
+
+        "temporal_context": (
+            "150 seconds"
+        ),
+
         "warning_threshold": 0.08,
     }
 
 
 # ============================================================
-# CSV -> PRODUCTION LSTM INFERENCE
+# CSV -> PRODUCTION LSTM
 # ============================================================
 
-@router.post("/csv")
+@router.post(
+    "/csv"
+)
 async def run_csv_inference(
     file: UploadFile = File(...),
     scenario: int | None = None,
 ):
-    """
-    Run the existing production CTU13 LSTM on an uploaded CSV.
-    """
 
     _validate_scenario(
         scenario
@@ -485,7 +544,7 @@ async def run_csv_inference(
 
     temp_path, _ = _save_upload(
         file,
-        allowed_suffixes={".csv"},
+        CSV_SUFFIXES,
     )
 
     try:
@@ -528,30 +587,47 @@ async def run_csv_inference(
 
         return {
             "success": True,
+
             "pipeline": (
                 "CSV → CTU13 LSTM"
             ),
+
+            "input_source": "csv",
+
             "filename": file.filename,
-            "scenario": detected_scenario,
-            "states": len(dataframe),
+
+            "scenario": (
+                detected_scenario
+            ),
+
+            "states": len(
+                dataframe
+            ),
+
             "sequence_length": (
                 SEQUENCE_LENGTH
             ),
+
             "features": FEATURE_NAMES,
+
             "prediction": prediction,
+
             "stage_interpretation": stage,
+
             "input": {
                 "timestamps": payload[
                     "timestamps"
                 ],
+
                 "sequence": payload[
                     "sequence"
                 ],
             },
+
             "research_note": (
-                "Inference uses the existing CTU13 "
-                "LSTM model and scaler. Attack labels "
-                "are not used as model inputs."
+                "Inference uses the "
+                "existing CTU13 LSTM "
+                "model and scaler."
             ),
         }
 
@@ -568,41 +644,22 @@ async def run_csv_inference(
             temp_path.unlink(
                 missing_ok=True
             )
+
         except Exception:
             pass
 
 
 # ============================================================
-# CSV / PCAP -> TRAINED WORLD MODEL RISK ROLLOUT
+# WORLD MODEL RISK
 # ============================================================
 
-@router.post("/risk")
+@router.post(
+    "/risk"
+)
 async def world_model_risk(
     file: UploadFile = File(...),
     scenario: int | None = None,
 ):
-    """
-    Run the trained CTU13 risk world model.
-
-    CSV input keeps the existing CTU13 pipeline.
-    PCAP/PCAPNG/CAP input is converted into the same
-    30-second temporal feature representation first.
-
-    The complete uploaded input is converted into
-    chronological 5-state windows.
-
-    Raw risk logits from all windows are collected first
-    so the frozen scenario-adaptive calibration can calculate
-    the scenario score distribution.
-
-    The endpoint returns:
-
-        - calibrated T+1 / T+2 / T+3 risk
-        - trained stage prediction
-        - MITRE interpretation
-        - feature-level evidence
-        - packet-level evidence when the source is PCAP
-    """
 
     _validate_scenario(
         scenario
@@ -610,15 +667,14 @@ async def world_model_risk(
 
     temp_path, _ = _save_upload(
         file,
-        allowed_suffixes={
-            ".csv",
-            ".pcap",
-            ".pcapng",
-            ".cap",
-        },
+        WORLD_MODEL_SUFFIXES,
     )
 
     try:
+
+        # ----------------------------------------------------
+        # Save upload
+        # ----------------------------------------------------
 
         content = await file.read()
 
@@ -626,7 +682,11 @@ async def world_model_risk(
             content
         )
 
-        result, input_source = _prepare_uploaded_input(
+        # ----------------------------------------------------
+        # Prepare CSV or PCAP
+        # ----------------------------------------------------
+
+        result = _prepare_uploaded_input(
             temp_path,
             scenario=scenario,
         )
@@ -639,6 +699,10 @@ async def world_model_risk(
             "payload"
         ]
 
+        input_source = result[
+            "input_source"
+        ]
+
         packet_evidence = result.get(
             "packet_evidence"
         )
@@ -647,9 +711,9 @@ async def world_model_risk(
             "pcap_metadata"
         )
 
-        # --------------------------------------------------------
-        # Scenario detection
-        # --------------------------------------------------------
+        # ----------------------------------------------------
+        # Scenario
+        # ----------------------------------------------------
 
         detected_scenario = (
             _detect_scenario(
@@ -658,9 +722,15 @@ async def world_model_risk(
             )
         )
 
-        # --------------------------------------------------------
-        # Risk-world-model sequences
-        # --------------------------------------------------------
+        # ----------------------------------------------------
+        # Build chronological 5-state
+        # windows.
+        #
+        # The world-model risk inference requires
+        # the complete uploaded temporal sequence
+        # because scenario-adaptive calibration
+        # operates over all available windows.
+        # ----------------------------------------------------
 
         sequences = (
             _build_world_model_sequences(
@@ -668,18 +738,22 @@ async def world_model_risk(
             )
         )
 
+        # ----------------------------------------------------
+        # Risk world model
+        # ----------------------------------------------------
+
         world_model_result = (
             predict_world_model_batch(
                 sequences
             )
         )
 
-        # --------------------------------------------------------
-        # Trained stage prediction on the latest 5-state history
+        # ----------------------------------------------------
+        # Stage prediction
         #
-        # payload["sequence"] is the canonical 5 x 12 sequence
-        # produced by the existing input pipeline or PCAP adapter.
-        # --------------------------------------------------------
+        # For both CSV and PCAP, the stage head receives
+        # the canonical latest normalized 5 × 12 sequence.
+        # ----------------------------------------------------
 
         stage_prediction = (
             predict_stage_with_evidence(
@@ -690,30 +764,107 @@ async def world_model_risk(
             )
         )
 
-        # --------------------------------------------------------
-        # Existing documented interpretation
-        # --------------------------------------------------------
+        # ----------------------------------------------------
+        # Documented CTU13 interpretation
+        # ----------------------------------------------------
 
         stage = _get_stage(
             detected_scenario
         )
 
-        # --------------------------------------------------------
-        # Combined response
-        # --------------------------------------------------------
+        # ----------------------------------------------------
+        # Packet / port / flag attribution
+        #
+        # ONLY raw PCAP gets concrete packet/flow
+        # attribution.
+        #
+        # CSV retains its existing feature evidence.
+        # ----------------------------------------------------
+
+        packet_attribution = None
+
+        if input_source == "pcap":
+
+            packet_attribution = (
+                analyze_pcap_attribution(
+                    temp_path,
+                    limit=20,
+                )
+            )
+
+        # ----------------------------------------------------
+        # Explainability
+        # ----------------------------------------------------
+
+        explainability = {
+            "available": True,
+
+            "method": (
+                "feature-level telemetry evidence"
+                + (
+                    " + deterministic "
+                    "PCAP packet/flow attribution"
+                    if input_source == "pcap"
+                    else ""
+                )
+            ),
+
+            "feature_evidence": (
+                stage_prediction[
+                    "evidence"
+                ]
+            ),
+
+            "raw_port_information_available": (
+                input_source == "pcap"
+            ),
+
+            "port_attribution": (
+                packet_attribution
+                if input_source == "pcap"
+                else None
+            ),
+
+            "packet_evidence_available": (
+                input_source == "pcap"
+            ),
+
+            "packet_evidence": (
+                packet_evidence
+                if input_source == "pcap"
+                else None
+            ),
+
+            "note": (
+                "For PCAP input, source/destination "
+                "IP addresses, source/destination "
+                "ports, transport protocol, and "
+                "TCP flag observations are retained "
+                "from the raw capture and exposed "
+                "as deterministic flow-level evidence. "
+                "These fields are not additional "
+                "trained world-model inputs."
+            ),
+        }
+
+        # ----------------------------------------------------
+        # Return
+        # ----------------------------------------------------
 
         return {
             "success": True,
 
             "pipeline": (
                 (
-                    "PCAP → 30-second temporal aggregation → "
-                    "CTU13 Risk World Model + Stage Head"
+                    "PCAP → 30-second temporal "
+                    "aggregation → CTU13 Risk "
+                    "World Model + Stage Head"
                 )
                 if input_source == "pcap"
-                else (
-                    "CSV → CTU13 Risk World Model "
-                    "+ Stage Head"
+                else
+                (
+                    "CSV → CTU13 Risk World "
+                    "Model + Stage Head"
                 )
             ),
 
@@ -723,9 +874,17 @@ async def world_model_risk(
 
             "scenario": detected_scenario,
 
-            "pcap_metadata": pcap_metadata,
+            "pcap_metadata": (
+                pcap_metadata
+            ),
 
-            "packet_evidence": packet_evidence,
+            "packet_evidence": (
+                packet_evidence
+            ),
+
+            "packet_attribution": (
+                packet_attribution
+            ),
 
             "states": len(
                 dataframe
@@ -735,61 +894,27 @@ async def world_model_risk(
                 SEQUENCE_LENGTH
             ),
 
-            "feature_count": len(
-                FEATURE_NAMES
+            "feature_count": (
+                len(FEATURE_NAMES)
             ),
 
             "features": FEATURE_NAMES,
 
             "input": payload,
 
-            # Existing calibrated risk rollout.
-            "world_model": world_model_result,
+            "world_model": (
+                world_model_result
+            ),
 
-            # Existing documented mapping.
             "stage_interpretation": stage,
 
-            # Existing trained stage classifier.
             "trained_stage_prediction": (
                 stage_prediction
             ),
 
-            "explainability": {
-                "available": True,
-
-                "method": (
-                    "feature-level telemetry evidence"
-                ),
-
-                "feature_evidence": (
-                    stage_prediction[
-                        "evidence"
-                    ]
-                ),
-
-                "raw_port_information_available": (
-                    False
-                ),
-
-                "port_attribution": None,
-
-                "packet_evidence_available": (
-                    input_source == "pcap"
-                ),
-
-                "packet_evidence": packet_evidence,
-
-                "note": (
-                    "CSV input exposes the existing "
-                    "aggregated feature evidence. PCAP input "
-                    "additionally exposes packet-level telemetry "
-                    "such as TCP flags, destination-port diversity, "
-                    "scan entropy, IP cardinality, packet size, "
-                    "TTL, and TCP-window statistics. These packet "
-                    "features are evidence fields and are not "
-                    "additional trained model inputs."
-                ),
-            },
+            "explainability": (
+                explainability
+            ),
 
             "classifier_scope": {
                 "trained_stage_classifier": True,
@@ -829,34 +954,38 @@ async def world_model_risk(
     finally:
 
         try:
+
             temp_path.unlink(
                 missing_ok=True
             )
+
         except Exception:
             pass
 
 
 # ============================================================
-# FLAGGED FLOW EVIDENCE
+# EXISTING FLAGGED-FLOW ENDPOINT
 # ============================================================
 
-@router.get("/flagged-flows")
+@router.get(
+    "/flagged-flows"
+)
 def flagged_flows(
     path: str,
     limit: int = 100,
 ):
-    """
-    Return suspicious flow records from a CTU13
-    .binetflow file.
 
-    This remains separate from the aggregated
-    world-model feature evidence.
-    """
+    if (
+        limit < 1
+        or limit > 1000
+    ):
 
-    if limit < 1 or limit > 1000:
         raise HTTPException(
             status_code=400,
-            detail="limit must be between 1 and 1000.",
+            detail=(
+                "limit must be between "
+                "1 and 1000."
+            ),
         )
 
     try:
