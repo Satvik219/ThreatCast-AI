@@ -4,7 +4,9 @@ import ModelSensitivityAttribution from "./ModelSensitivityAttribution";
 
 
 const API_URL =
-  "http://127.0.0.1:8000/api/world-model/risk";
+  import.meta.env.VITE_API_URL !== undefined
+    ? `${import.meta.env.VITE_API_URL}/api/world-model/risk`
+    : "/api/world-model/risk";
 
 
 const FEATURE_COUNT = 12;

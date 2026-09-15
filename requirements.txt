@@ -1,5 +1,5 @@
-# Runtime dependencies used by root training/creation/inspection scripts,
-# the FastAPI backend, and the standalone Streamlit demo.
+# Runtime dependencies used by root training/creation/inspection scripts
+# and the FastAPI backend.
 --extra-index-url https://download.pytorch.org/whl/cpu
 fastapi==0.141.1
 joblib==1.6.0
@@ -12,7 +12,6 @@ python-multipart==0.0.32
 scapy==2.7.0
 scikit-learn==1.9.0
 shap==0.51.0
-streamlit==1.63.0
 tensorflow==2.21.0
 torch==2.14.0+cpu
 uvicorn[standard]==0.52.4

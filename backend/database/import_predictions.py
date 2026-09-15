@@ -106,7 +106,16 @@ def store_prediction(
     tx.run(
         """
         MATCH (n:NetworkState {id: $state_id})
-        MATCH (m:Model {id: "ctu13_lstm_early_warning"})
+
+        // The model is a real persisted deployment artifact, not a
+        // synthetic dashboard record.  Creating it here makes a fresh
+        // database import self-contained and keeps repeated imports safe.
+        MERGE (m:Model {id: "ctu13_lstm_early_warning"})
+        SET
+            m.name = "CTU13 LSTM Early Warning",
+            m.sequence_length = $sequence_length,
+            m.feature_count = 12,
+            m.threshold = $threshold
 
         MERGE (p:Prediction {id: $prediction_id})
 

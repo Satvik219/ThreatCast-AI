@@ -254,9 +254,25 @@ def _run_raw_model(
 
     with torch.no_grad():
 
-        latent_predictions, risk_logits = (
-            model(model_input)
+        current_latent = model.encode_current_state(
+            model_input
         )
+
+        latent_predictions = model.rollout_latent(
+            current_latent,
+            forecast_horizon=FORECAST_HORIZON,
+        )
+
+        risk_logits = model.risk_head(
+            latent_predictions
+        )
+
+    current_latent = (
+        current_latent
+        .detach()
+        .cpu()
+        .numpy()
+    )
 
     latent_predictions = (
         latent_predictions
@@ -285,6 +301,7 @@ def _run_raw_model(
         )
 
     return (
+        current_latent,
         latent_predictions,
         risk_logits,
     )
@@ -299,7 +316,7 @@ def predict_world_model_batch(
             "At least one sequence is required."
         )
 
-    latent_predictions, risk_logits = (
+    current_latent, latent_predictions, risk_logits = (
         _run_raw_model(sequences)
     )
 
@@ -379,6 +396,7 @@ def predict_world_model_batch(
             "CTU13 Temporal "
             "Infiltration Risk World Model"
         ),
+        "model_status": "TRAINED_CHECKPOINT_LOADED",
         "checkpoint": CHECKPOINT_PATH.name,
         "sequence_length": SEQUENCE_LENGTH,
         "feature_count": len(FEATURE_NAMES),
@@ -393,6 +411,22 @@ def predict_world_model_batch(
                 latest_index
             ].shape
         ),
+        "current_latent": [
+            float(x)
+            for x in current_latent[
+                latest_index
+            ]
+        ],
+        "latent_rollout": [
+            [
+                float(value)
+                for value in step
+            ]
+            for step in latent_predictions[
+                latest_index
+            ]
+        ],
+        "rollout_is_recursive": True,
         "normalization": {
             "mean_file": FEATURE_MEAN_PATH.name,
             "std_file": FEATURE_STD_PATH.name,

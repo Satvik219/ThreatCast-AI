@@ -66,7 +66,7 @@ inference itself stays on the local machine.
 Python 3.11 is recommended. From the repository root:
 
 ```bash
-pip install -r requirements.txt && streamlit run demo_app.py
+docker compose up --build
 ```
 
 Open <http://localhost:8501>, upload a CSV or PCAP, and run the analysis. The

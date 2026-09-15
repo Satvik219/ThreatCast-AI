@@ -19,22 +19,25 @@ services:
       start_period: 10s
 
   neo4j-init:
-    image: neo4j:5.26-community
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: threatcast-neo4j-init
     depends_on:
       neo4j:
         condition: service_healthy
-    volumes:
-      - ./docker/neo4j/init:/init
-    entrypoint:
+    environment:
+      NEO4J_URI: "neo4j://neo4j:7687"
+      NEO4J_USERNAME: neo4j
+      NEO4J_PASSWORD: threatcast_demo_password
+      NEO4J_DATABASE: neo4j
+    command:
       - /bin/sh
       - -c
       - |
-        sed -i 's/\r$//' /init/init.sh
-        exec /bin/sh /init/init.sh
-    environment:
-      NEO4J_USERNAME: neo4j
-      NEO4J_PASSWORD: threatcast_demo_password
+        python -m backend.database.import_ctu13
+        python -m backend.database.import_predictions
+        python -m backend.database.store_warning_events
 
   backend:
     build:
@@ -65,15 +68,10 @@ services:
       start_period: 20s
 
   frontend:
-    image: node:22-alpine
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: threatcast-frontend
-    working_dir: /app
-    volumes:
-      - ./frontend:/app
-      - threatcast_frontend_modules:/app/node_modules
-    environment:
-      VITE_API_URL: "http://localhost:8000"
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     depends_on:
       backend:
         condition: service_healthy
@@ -83,4 +81,3 @@ services:
 volumes:
   threatcast_neo4j_data:
   threatcast_neo4j_logs:
-  threatcast_frontend_modules:

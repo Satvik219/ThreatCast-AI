@@ -276,7 +276,7 @@ class CTU13RiskWorldModel(nn.Module):
             )
         )
 
-    def forward(self, history):
+    def encode_current_state(self, history):
 
         # ----------------------------------------------------
         # Project observed feature states
@@ -295,6 +295,14 @@ class CTU13RiskWorldModel(nn.Module):
                 projected_history
             )
         )
+
+        return current_latent
+
+    def rollout_latent(
+        self,
+        current_latent,
+        forecast_horizon=FORECAST_HORIZON,
+    ):
 
         # ----------------------------------------------------
         # Autoregressive rollout
@@ -319,6 +327,19 @@ class CTU13RiskWorldModel(nn.Module):
         latent_predictions = torch.stack(
             latent_predictions,
             dim=1,
+        )
+
+        return latent_predictions
+
+    def forward(self, history):
+
+        current_latent = self.encode_current_state(
+            history
+        )
+
+        latent_predictions = self.rollout_latent(
+            current_latent,
+            forecast_horizon=FORECAST_HORIZON,
         )
 
         # ----------------------------------------------------

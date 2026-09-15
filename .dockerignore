@@ -97,3 +97,11 @@ data/CTU13/scenario13
 
 # Local virtual environment - never copy host Python packages into Docker
 .venv/
+
+# Runtime model artifacts required by the backend and the reproducible
+# Neo4j prediction import.  These are existing trained artifacts, not build
+# outputs.
+!lstm_early_warning_multiscenario.keras
+!lstm_early_warning_scaler.pkl
+!world_model/checkpoints/
+!world_model/checkpoints/**

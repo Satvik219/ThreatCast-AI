@@ -6,6 +6,8 @@ from typing import Any
 
 import math
 
+import pandas as pd
+
 
 # ============================================================================
 # PCAP PACKET / FLOW ATTRIBUTION
