@@ -1,5 +1,7 @@
-import React, { useMemo, useState } from "react";
+﻿import React, { useMemo, useState } from "react";
 import FlaggedFlowsPanel from "./FlaggedFlowsPanel";
+import ModelSensitivityAttribution from "./ModelSensitivityAttribution";
+
 
 const API_URL =
   "http://127.0.0.1:8000/api/world-model/risk";
@@ -41,14 +43,24 @@ export default function WorldModelUpload() {
     null;
 
   const packetAttribution =
-    result?.packet_attribution ||
-    result?.explainability
-      ?.port_attribution ||
-    null;
+  result?.packet_attribution ||
+  result?.explainability
+    ?.port_attribution ||
+  null;
 
-  const rollout =
-    worldModel?.rollout || [];
+const predictionAttribution =
+  result?.prediction_attribution ||
+  result?.explainability
+    ?.prediction_attribution ||
+  null;
 
+const modelSensitivityAttribution =
+  result?.model_sensitivity_attribution ||
+  result?.explainability?.model_sensitivity_attribution ||
+  null;
+
+const rollout =
+  worldModel?.rollout || [];
 
   // ==========================================================
   // FILE HANDLING
@@ -467,7 +479,7 @@ export default function WorldModelUpload() {
               title="Temporal States"
               value={
                 result.states ??
-                "—"
+                "â€”"
               }
             />
 
@@ -476,7 +488,7 @@ export default function WorldModelUpload() {
               value={
                 result.sequence_length
                   ? `${result.sequence_length} states`
-                  : "—"
+                  : "â€”"
               }
             />
 
@@ -573,7 +585,7 @@ export default function WorldModelUpload() {
                         worldModel
                           .calibration
                           .method ||
-                        "—"
+                        "â€”"
                       }
                     />
 
@@ -583,7 +595,7 @@ export default function WorldModelUpload() {
                         worldModel
                           .calibration
                           .calibration_windows ??
-                        "—"
+                        "â€”"
                       }
                     />
 
@@ -593,7 +605,7 @@ export default function WorldModelUpload() {
                         worldModel
                           .forecast_horizon
                           ? `K=${worldModel.forecast_horizon}`
-                          : "—"
+                          : "â€”"
                       }
                     />
 
@@ -723,7 +735,7 @@ export default function WorldModelUpload() {
                                 label="Activity"
                                 value={
                                   mapping.activity ||
-                                  "—"
+                                  "â€”"
                                 }
                               />
 
@@ -731,7 +743,7 @@ export default function WorldModelUpload() {
                                 label="Tactic"
                                 value={
                                   mapping.tactic ||
-                                  "—"
+                                  "â€”"
                                 }
                               />
 
@@ -739,7 +751,7 @@ export default function WorldModelUpload() {
                                 label="Technique"
                                 value={
                                   mapping.technique ||
-                                  "—"
+                                  "â€”"
                                 }
                               />
 
@@ -793,12 +805,45 @@ export default function WorldModelUpload() {
             )}
 
 
+
+
           {/* ==================================================
-              DOCUMENTED ACTIVITY
+              PREDICTION INPUT ATTRIBUTION
           ================================================== */}
 
-          {result.stage_interpretation && (
+          {inputSource === "pcap" &&
+            predictionAttribution && (
 
+              <PredictionAttribution
+                attribution={
+                  predictionAttribution
+                }
+              />
+
+            )}
+
+
+         {/* ==================================================
+    MODEL SENSITIVITY ATTRIBUTION
+================================================== */}
+
+{inputSource === "pcap" &&
+  modelSensitivityAttribution && (
+
+    <ModelSensitivityAttribution
+      attribution={
+        modelSensitivityAttribution
+      }
+    />
+
+)}
+
+
+{/* ==================================================
+    DOCUMENTED ACTIVITY
+================================================== */}
+
+{result.stage_interpretation && (
             <div className="rounded-2xl border border-amber-500/20 bg-[#0D1115] p-6">
 
               <h3 className="text-lg font-semibold text-slate-100">
@@ -813,7 +858,7 @@ export default function WorldModelUpload() {
                     result
                       .stage_interpretation
                       .activity ||
-                    "—"
+                    "â€”"
                   }
                 />
 
@@ -823,7 +868,7 @@ export default function WorldModelUpload() {
                     result
                       .stage_interpretation
                       .tactic ||
-                    "—"
+                    "â€”"
                   }
                 />
 
@@ -833,7 +878,7 @@ export default function WorldModelUpload() {
                     result
                       .stage_interpretation
                       .technique ||
-                    "—"
+                    "â€”"
                   }
                 />
 
@@ -873,6 +918,238 @@ export default function WorldModelUpload() {
 
 
 // ============================================================
+// PREDICTION INPUT ATTRIBUTION
+// ============================================================
+
+function PredictionAttribution({
+  attribution,
+}) {
+  if (!attribution) {
+    return null;
+  }
+
+  if (!attribution.available) {
+    return (
+      <div className="rounded-2xl border border-slate-800 bg-[#0D1115] p-6">
+        <h3 className="text-lg font-semibold text-slate-100">
+          Prediction Input Evidence
+        </h3>
+        <p className="mt-2 text-xs leading-5 text-slate-500">
+          Temporal packet attribution was not available for this prediction.
+        </p>
+      </div>
+    );
+  }
+
+  const window = attribution.prediction_input_window || {};
+  const featureCorrespondence = attribution.feature_correspondence || {};
+  const flaggedFlows = Array.isArray(attribution.flagged_flows)
+    ? attribution.flagged_flows
+    : [];
+  const topFlows = Array.isArray(attribution.top_matching_flows)
+    ? attribution.top_matching_flows
+    : [];
+  const displayFlows = flaggedFlows.length > 0 ? flaggedFlows : topFlows;
+
+  const formatNumber = (value) => {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return "â€”";
+    return number.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  };
+
+  const formatBytes = (value) => {
+    const bytes = Number(value);
+    if (!Number.isFinite(bytes)) return "â€”";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)} GB`;
+  };
+
+  const endpoint = (ip, port) => {
+    if (!ip) return "â€”";
+    if (port === null || port === undefined || port === "") return String(ip);
+    return `${ip}:${port}`;
+  };
+
+  return (
+    <section className="rounded-2xl border border-orange-400/20 bg-[#0D1115] p-6">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-slate-100">
+            Prediction Input Evidence
+          </h3>
+          <p className="mt-1 max-w-3xl text-xs leading-5 text-slate-500">
+            Packet, port, TCP-flag, and flow evidence temporally associated with
+            the five-state history used for the latest world-model prediction.
+          </p>
+        </div>
+        <span className="w-fit rounded-full border border-orange-400/30 bg-orange-400/10 px-3 py-1 text-xs font-semibold text-orange-300">
+          Input-window attribution
+        </span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Metric title="Input States" value={attribution.sequence_length ?? "â€”"} />
+        <Metric title="Matched Flows" value={attribution.matched_flow_count ?? "â€”"} />
+        <Metric title="Flagged Flows" value={attribution.matched_flagged_flow_count ?? "â€”"} />
+        <Metric title="Matched Packets" value={attribution.matched_packet_count ?? "â€”"} />
+      </div>
+
+      <div className="mt-5 rounded-xl border border-slate-800 bg-[#11161B] p-5">
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
+          Prediction Input Window
+        </p>
+        <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-slate-600">Start</p>
+            <p className="mt-1 break-all font-mono text-xs text-slate-300">
+              {window.start_iso || window.start_timestamp || "â€”"}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-slate-600">End</p>
+            <p className="mt-1 break-all font-mono text-xs text-slate-300">
+              {window.end_iso || window.end_timestamp || "â€”"}
+            </p>
+          </div>
+        </div>
+        <p className="mt-4 text-xs leading-5 text-slate-500">
+          This window corresponds to the temporal history consumed by the latest
+          world-model prediction. It does not imply that an individual packet
+          causally produced the prediction.
+        </p>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Metric title="Flow Count" value={formatNumber(featureCorrespondence.flow_count)} />
+        <Metric title="Packets" value={formatNumber(featureCorrespondence.packet_count)} />
+        <Metric title="Bytes" value={formatBytes(featureCorrespondence.byte_count)} />
+        <Metric title="Unique Ports" value={formatNumber(featureCorrespondence.unique_destination_ports)} />
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-5">
+        <Metric title="SYN" value={formatNumber(featureCorrespondence.tcp_syn_packets)} />
+        <Metric title="ACK" value={formatNumber(featureCorrespondence.tcp_ack_packets)} />
+        <Metric title="RST" value={formatNumber(featureCorrespondence.tcp_rst_packets)} />
+        <Metric title="Unique Destinations" value={formatNumber(featureCorrespondence.unique_destination_ips)} />
+        <Metric title="Max Ports / Source" value={formatNumber(featureCorrespondence.max_unique_ports_per_source)} />
+      </div>
+
+      <div className="mt-6">
+        <div className="flex flex-col gap-1">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
+            Flows Associated With Prediction Input
+          </p>
+          <p className="text-xs leading-5 text-slate-500">
+            These flows overlap the temporal input window. They provide
+            observable packet/port/flag evidence corresponding to the prediction input.
+          </p>
+        </div>
+
+        {displayFlows.length === 0 ? (
+          <div className="mt-4 rounded-xl border border-slate-800 bg-[#11161B] p-5">
+            <p className="text-sm text-slate-400">
+              No packet flows overlapped the prediction input window.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {displayFlows.slice(0, 10).map((flow, index) => {
+              const flags = flow?.tcp_flags || {};
+              return (
+                <div
+                  key={`${flow?.src_ip}-${flow?.src_port}-${flow?.dst_ip}-${flow?.dst_port}-${index}`}
+                  className={`rounded-xl border p-4 ${
+                    flow?.flagged
+                      ? "border-red-400/20 bg-red-400/5"
+                      : "border-slate-800 bg-[#11161B]"
+                  }`}
+                >
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {flow?.flagged && (
+                          <span className="rounded-full border border-red-400/30 bg-red-400/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-red-300">
+                            Flagged
+                          </span>
+                        )}
+                        <span className="rounded-full border border-slate-700 bg-slate-800/40 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                          {flow?.protocol || "Unknown"}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+                        <span className="break-all font-mono text-xs font-semibold text-slate-200">
+                          {endpoint(flow?.src_ip, flow?.src_port)}
+                        </span>
+                        <span className="text-cyan-400">â†’</span>
+                        <span className="break-all font-mono text-xs font-semibold text-slate-200">
+                          {endpoint(flow?.dst_ip, flow?.dst_port)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                      <div>
+                        <p className="text-[9px] uppercase tracking-wider text-slate-600">Packets</p>
+                        <p className="mt-1 text-xs font-semibold text-slate-300">
+                          {formatNumber(flow?.packet_count)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] uppercase tracking-wider text-slate-600">Bytes</p>
+                        <p className="mt-1 text-xs font-semibold text-slate-300">
+                          {formatBytes(flow?.byte_count)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] uppercase tracking-wider text-slate-600">SYN / ACK</p>
+                        <p className="mt-1 text-xs font-semibold text-cyan-300">
+                          {formatNumber(flags.SYN)} / {formatNumber(flags.ACK)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[9px] uppercase tracking-wider text-slate-600">Score</p>
+                        <p className={`mt-1 text-xs font-bold ${flow?.flagged ? "text-red-300" : "text-slate-300"}`}>
+                          {Number(flow?.evidence_score).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {Array.isArray(flow?.evidence_reasons) && flow.evidence_reasons.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {flow.evidence_reasons.map((reason, reasonIndex) => (
+                        <span
+                          key={`${String(reason)}-${reasonIndex}`}
+                          className="rounded-lg border border-red-400/10 bg-red-400/5 px-3 py-1.5 text-[10px] leading-4 text-red-300"
+                        >
+                          {reason}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-6 rounded-xl border border-amber-400/20 bg-amber-400/5 p-4">
+        <p className="text-xs leading-5 text-amber-300">
+          <strong>Interpretation:</strong> packet/port/flag evidence is associated
+          with the temporal input consumed by the model. It is not a learned
+          packet-level attribution, causal explanation, or maliciousness probability.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+
+// ============================================================
 // METRIC
 // ============================================================
 
@@ -890,7 +1167,7 @@ function Metric({
       </p>
 
       <p className="mt-2 break-words text-xl font-semibold text-slate-100">
-        {value ?? "—"}
+        {value ?? "â€”"}
       </p>
 
     </div>
@@ -967,7 +1244,7 @@ function RiskCard({
           probability
         )
           ? `${probability.toFixed(2)}%`
-          : "—"}
+          : "â€”"}
 
       </p>
 
@@ -982,7 +1259,7 @@ function RiskCard({
                     item.threshold
                   ) * 100
                 ).toFixed(2)}%`
-              : "—"
+              : "â€”"
           }
         />
 
@@ -1043,7 +1320,7 @@ function StageCard({
           probability
         )
           ? `${probability.toFixed(2)}%`
-          : "—"}
+          : "â€”"}
 
       </p>
 
@@ -1057,7 +1334,7 @@ function StageCard({
                 data.threshold
               ) * 100
             ).toFixed(1)}%`
-          : "—"}
+          : "â€”"}
 
       </p>
 
@@ -1096,7 +1373,7 @@ function PcapMetadata({
           value={
             metadata.packet_count ??
             metadata.packets ??
-            "—"
+            "â€”"
           }
         />
 
@@ -1114,7 +1391,7 @@ function PcapMetadata({
           value={
             metadata.state_count ??
             metadata.states ??
-            "—"
+            "â€”"
           }
         />
 
@@ -1123,7 +1400,7 @@ function PcapMetadata({
           value={
             metadata.flow_count ??
             metadata.flows ??
-            "—"
+            "â€”"
           }
         />
 
@@ -1591,7 +1868,7 @@ function FlaggedFlowCard({
             </span>
 
             <span className="text-slate-600">
-              →
+              â†’
             </span>
 
             <span className="font-mono text-sm text-slate-200">
@@ -1779,14 +2056,14 @@ function TemporalInput({
           </h3>
 
           <p className="mt-1 text-xs text-slate-500">
-            {result.features.length} features ×{" "}
+            {result.features.length} features Ã—{" "}
             {result.input.sequence.length} states
           </p>
 
         </div>
 
         <span className="rounded-full border border-slate-700 bg-slate-800/50 px-3 py-1 text-xs text-slate-400">
-          {result.input.sequence.length} ×{" "}
+          {result.input.sequence.length} Ã—{" "}
           {result.features.length}
         </span>
 
@@ -1895,7 +2172,7 @@ function InfoItem({
       </p>
 
       <p className="mt-1 break-words text-sm text-slate-300">
-        {value ?? "—"}
+        {value ?? "â€”"}
       </p>
 
     </div>
@@ -1980,7 +2257,7 @@ function formatNumber(
     value === undefined
   ) {
 
-    return "—";
+    return "â€”";
   }
 
   const number =
@@ -2025,7 +2302,7 @@ function formatPercent(
     )
   ) {
 
-    return "—";
+    return "â€”";
   }
 
   return `${number.toFixed(2)}%`;
@@ -2044,7 +2321,7 @@ function formatBytes(
     number < 0
   ) {
 
-    return "—";
+    return "â€”";
   }
 
   if (number < 1024) {
