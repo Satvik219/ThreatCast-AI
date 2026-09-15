@@ -2,8 +2,10 @@ from pathlib import Path
 
 import pandas as pd
 
+from backend.database.neo4j_client import get_database, get_driver
 from backend.ml.inference import FEATURE_NAMES
 from backend.models.schemas import (
+    NetworkEdge,
     NetworkGraphResponse,
     NetworkActivityResponse,
     NetworkNode,
@@ -121,58 +123,212 @@ def _get_latest_scenario_data() -> pd.DataFrame:
 
 
 def get_network_graph() -> NetworkGraphResponse:
+    """Project the persisted CTU13 Neo4j lineage for the existing graph UI.
+
+    CTU13 network states are aggregate 30-second observations, not hosts.
+    Consequently this projection deliberately renders only actual database
+    entities and relationships (Dataset, Scenario, NetworkState, Prediction,
+    Event, and Model); it never manufactures a host-level topology.
     """
-    Return an aggregate CTU13 network representation.
 
-    The deployed CTU13 LSTM does not infer individual hosts,
-    compromised nodes, attack paths, or graph edges.
-
-    Therefore no fabricated topology is returned.
+    query = """
+    MATCH (d:Dataset {id: "ctu13"})-[:HAS_SCENARIO]->(s:Scenario)
+          -[:HAS_STATE]->(n:NetworkState)
+    WITH d, s, n
+    ORDER BY n.timestamp DESC
+    LIMIT 6
+    OPTIONAL MATCH (n)-[:HAS_PREDICTION]->(p:Prediction)
+    OPTIONAL MATCH (n)-[:GENERATED_EVENT]->(e:Event)
+    OPTIONAL MATCH (p)-[:PRODUCED_BY]->(m:Model)
+    RETURN
+        d.id AS dataset_id,
+        s.id AS scenario_id,
+        s.scenario_number AS scenario_number,
+        n.id AS state_id,
+        n.timestamp AS state_timestamp,
+        n.Flow_Count AS flow_count,
+        p.id AS prediction_id,
+        p.probability AS probability,
+        p.warning AS warning,
+        p.prediction_timestamp AS prediction_timestamp,
+        e.id AS event_id,
+        e.severity AS event_severity,
+        m.id AS model_id
+    ORDER BY state_timestamp ASC
     """
 
-    scenario_df = _get_latest_scenario_data()
+    with get_driver().session(database=get_database()) as session:
+        records = list(session.run(query))
 
-    latest_state = scenario_df.iloc[-1]
+    if not records:
+        raise RuntimeError("No persisted CTU13 graph records found in Neo4j.")
 
-    scenario = str(
-        latest_state["Scenario"]
-    )
+    nodes: dict[str, NetworkNode] = {}
+    edges: list[NetworkEdge] = []
+    edge_ids: set[str] = set()
+    attack_path_node_ids: list[str] = []
+    latest_timestamp = ""
 
-    timestamp = latest_state["Timestamp"]
+    def add_node(node: NetworkNode) -> None:
+        nodes.setdefault(node.id, node)
 
-    if hasattr(timestamp, "isoformat"):
-        last_updated = timestamp.isoformat()
-    else:
-        last_updated = str(timestamp)
+    def add_edge(source: str, target: str, relationship: str, *, attack: bool = False) -> None:
+        edge_id = f"{relationship}:{source}:{target}"
+        if edge_id in edge_ids:
+            return
+        edge_ids.add(edge_id)
+        edges.append(NetworkEdge(
+            id=edge_id,
+            source=source,
+            target=target,
+            protocol=relationship,
+            port=0,
+            traffic_volume="Persisted Neo4j relationship",
+            is_attack_path=attack,
+            status="monitored",
+        ))
 
-    aggregate_node = NetworkNode(
-        id="ctu13-network",
-        label=f"CTU13 Scenario {scenario}",
-        type="gateway",
-        ip="N/A",
-        risk_score=0,
-        state="normal",
-        department="Network Aggregate",
-        os="N/A",
-        observed_activity=(
-            "Aggregate network-state observation "
-            "from CTU13 telemetry."
-        ),
-        predicted_action=(
-            "No node-level prediction available "
-            "from the CTU13 LSTM."
-        ),
-        active_connections=0,
-        is_in_attack_path=False,
-    )
+    for record in records:
+        dataset_id = str(record["dataset_id"])
+        scenario_id = str(record["scenario_id"])
+        state_id = str(record["state_id"])
+        timestamp = str(record["state_timestamp"])
+        latest_timestamp = max(latest_timestamp, timestamp)
+        scenario_number = record["scenario_number"]
+
+        add_node(NetworkNode(
+            id=dataset_id,
+            label="CTU13 Dataset",
+            type="database",
+            ip="Not applicable",
+            risk_score=0,
+            state="normal",
+            department="Dataset",
+            os="Not applicable",
+            observed_activity="Persisted CTU13 source dataset.",
+            predicted_action="Contains the imported scenario lineage.",
+            active_connections=1,
+        ))
+        add_node(NetworkNode(
+            id=scenario_id,
+            label=f"CTU13 Scenario {scenario_number}",
+            type="gateway",
+            ip="Not applicable",
+            risk_score=0,
+            state="normal",
+            department="Scenario",
+            os="Not applicable",
+            observed_activity="Persisted scenario containing 30-second network states.",
+            predicted_action="Connects the displayed states to their CTU13 scenario.",
+            active_connections=0,
+        ))
+        add_node(NetworkNode(
+            id=state_id,
+            label="NetworkState " + timestamp,
+            type="endpoint",
+            ip="Aggregate telemetry",
+            risk_score=0,
+            state="normal",
+            department="CTU13 Network State",
+            os="Not applicable",
+            observed_activity=(
+                f"Persisted 30-second aggregate state; Flow_Count={record['flow_count']}."
+            ),
+            predicted_action="Input to the persisted CTU13 LSTM prediction.",
+            active_connections=0,
+        ))
+        add_edge(dataset_id, scenario_id, "HAS_SCENARIO")
+        add_edge(scenario_id, state_id, "HAS_STATE")
+
+        prediction_id = record["prediction_id"]
+        if prediction_id is None:
+            continue
+
+        probability = float(record["probability"] or 0.0)
+        warning = bool(record["warning"])
+        risk_score = round(max(0.0, min(1.0, probability)) * 100)
+        prediction_state = "compromised" if warning else "normal"
+        prediction_id = str(prediction_id)
+        add_node(NetworkNode(
+            id=prediction_id,
+            label="LSTM Prediction " + timestamp,
+            type="server",
+            ip="Not applicable",
+            risk_score=risk_score,
+            state=prediction_state,
+            department="CTU13 LSTM",
+            os="Not applicable",
+            observed_activity=(
+                f"Persisted early-warning probability: {probability * 100:.4f}%."
+            ),
+            predicted_action=(
+                "Persisted warning threshold exceeded."
+                if warning else "Persisted prediction is below the warning threshold."
+            ),
+            active_connections=0,
+            is_in_attack_path=warning,
+        ))
+        add_edge(state_id, prediction_id, "HAS_PREDICTION", attack=warning)
+        if warning:
+            attack_path_node_ids.extend([state_id, prediction_id])
+
+        model_id = record["model_id"]
+        if model_id is not None:
+            model_id = str(model_id)
+            add_node(NetworkNode(
+                id=model_id,
+                label="CTU13 LSTM Early Warning",
+                type="server",
+                ip="Not applicable",
+                risk_score=0,
+                state="normal",
+                department="Model Artifact",
+                os="Not applicable",
+                observed_activity="Real persisted deployment model artifact.",
+                predicted_action="Produces the linked persisted predictions.",
+                active_connections=0,
+            ))
+            add_edge(prediction_id, model_id, "PRODUCED_BY")
+
+        event_id = record["event_id"]
+        if event_id is not None:
+            event_id = str(event_id)
+            add_node(NetworkNode(
+                id=event_id,
+                label="ML Early Warning Event",
+                type="database",
+                ip="Not applicable",
+                risk_score=risk_score,
+                state="suspicious",
+                department="Persisted Event",
+                os="Not applicable",
+                observed_activity="Derived from a persisted CTU13 LSTM warning.",
+                predicted_action="Review the linked prediction and source network state.",
+                active_connections=0,
+                is_in_attack_path=True,
+            ))
+            add_edge(state_id, event_id, "GENERATED_EVENT", attack=True)
+            add_edge(event_id, prediction_id, "BASED_ON_PREDICTION", attack=True)
+            attack_path_node_ids.append(event_id)
+
+    connection_counts = {node_id: 0 for node_id in nodes}
+    for edge in edges:
+        connection_counts[edge.source] += 1
+        connection_counts[edge.target] += 1
+    for node_id, node in list(nodes.items()):
+        nodes[node_id] = node.model_copy(update={
+            "active_connections": connection_counts[node_id],
+        })
 
     return NetworkGraphResponse(
-        nodes=[aggregate_node],
-        edges=[],
-        attack_path_node_ids=[],
+        nodes=list(nodes.values()),
+        edges=edges,
+        attack_path_node_ids=list(dict.fromkeys(attack_path_node_ids)),
         forecasted_path_node_ids=[],
-        high_risk_nodes_count=0,
-        last_updated=last_updated,
+        high_risk_nodes_count=sum(
+            1 for node in nodes.values() if node.risk_score > 50
+        ),
+        last_updated=latest_timestamp,
     )
 
 

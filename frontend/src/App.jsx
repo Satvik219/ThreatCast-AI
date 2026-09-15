@@ -22,6 +22,7 @@ import Explainability from "./pages/Explainability";
 import ResearchDemo from "./pages/ResearchDemo";
 import WorldModel from "./pages/WorldModel";
 import Login from "./pages/Login";
+import AppErrorBoundary from "./components/common/AppErrorBoundary";
 
 import {
   getDashboardSummary,
@@ -80,7 +81,8 @@ export default function App() {
   };
 
   return (
-    <BrowserRouter>
+    <AppErrorBoundary>
+      <BrowserRouter>
 
       <Routes>
 
@@ -169,6 +171,7 @@ export default function App() {
 
       </Routes>
 
-    </BrowserRouter>
+      </BrowserRouter>
+    </AppErrorBoundary>
   );
 }

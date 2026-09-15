@@ -1,4 +1,4 @@
-import React, { useId, useState } from 'react';
+import React, { useId, useMemo, useState } from 'react';
 import {
   User,
   Laptop,
@@ -83,6 +83,41 @@ export default function InteractiveNetworkGraph({
 
   const uid = rawId.replace(/[^a-zA-Z0-9]/g, '');
 
+  // The API is backed by persisted Neo4j data, but keep the renderer resilient
+  // to a transient/malformed response so one graph payload cannot blank the app.
+  const nodes = Array.isArray(graphData?.nodes)
+    ? graphData.nodes.filter((node) => node && node.id != null)
+    : [];
+  const edges = Array.isArray(graphData?.edges)
+    ? graphData.edges.filter((edge) => edge && edge.source != null && edge.target != null)
+    : [];
+  const attack_path_node_ids = Array.isArray(graphData?.attack_path_node_ids)
+    ? graphData.attack_path_node_ids
+    : [];
+  const forecasted_path_node_ids = Array.isArray(graphData?.forecasted_path_node_ids)
+    ? graphData.forecasted_path_node_ids
+    : [];
+
+  const coordsMap = useMemo(() => {
+    const preset = SCENARIO_COORDINATES[activeScenario] || {};
+    const generated = {};
+    const unpositioned = nodes.filter((node) => !preset[node.id]);
+
+    // Persisted Neo4j IDs do not belong to the legacy demo-coordinate map.
+    // Position them deterministically so the existing renderer can display
+    // real Dataset/Scenario/State/Prediction/Event entities without overlap.
+    unpositioned.forEach((node, index) => {
+      const column = index % 4;
+      const row = Math.floor(index / 4);
+      generated[node.id] = {
+        x: 125 + column * 225,
+        y: 105 + row * 150,
+      };
+    });
+
+    return { ...preset, ...generated };
+  }, [activeScenario, nodes]);
+
   if (!graphData) {
     return (
       <div className="
@@ -100,17 +135,6 @@ export default function InteractiveNetworkGraph({
       </div>
     );
   }
-
-  const {
-    nodes = [],
-    edges = [],
-    attack_path_node_ids = [],
-    forecasted_path_node_ids = [],
-  } = graphData;
-
-  const coordsMap =
-    SCENARIO_COORDINATES[activeScenario] ||
-    SCENARIO_COORDINATES.default;
 
   const height = compact ? 380 : 560;
   const viewBox = compact
