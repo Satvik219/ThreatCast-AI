@@ -2,7 +2,8 @@ from pathlib import Path
 import os
 
 import pandas as pd
-from neo4j import GraphDatabase
+
+from backend.graph_store import Neo4jStore
 
 
 # ============================================================
@@ -195,13 +196,12 @@ def main():
     print(f"\nCSV rows: {len(df)}")
     print(f"Scenarios: {df['Scenario'].nunique()}")
 
-    driver = GraphDatabase.driver(
-        NEO4J_URI,
-        auth=(NEO4J_USERNAME, NEO4J_PASSWORD),
+    driver = Neo4jStore(
+        NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD,
     )
 
     try:
-        driver.verify_connectivity()
+        driver.verify()
         print("\n✓ Neo4j connection successful")
 
         with driver.session(database="neo4j") as session:

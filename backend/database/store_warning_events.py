@@ -1,6 +1,6 @@
 import os
 
-from neo4j import GraphDatabase
+from backend.graph_store import Neo4jStore
 
 
 NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
@@ -17,13 +17,12 @@ def main():
     print("THREATCAST — STORE ML WARNING EVENTS")
     print("=" * 60)
 
-    driver = GraphDatabase.driver(
-        NEO4J_URI,
-        auth=(NEO4J_USERNAME, NEO4J_PASSWORD),
+    driver = Neo4jStore(
+        NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD,
     )
 
     try:
-        driver.verify_connectivity()
+        driver.verify()
         print("\n✓ Neo4j connection successful")
 
         with driver.session(database="neo4j") as session:

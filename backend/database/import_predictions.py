@@ -2,8 +2,8 @@ from pathlib import Path
 import os
 
 import pandas as pd
-from neo4j import GraphDatabase
 
+from backend.graph_store import Neo4jStore
 from backend.ml.inference import predict_early_warning
 
 
@@ -152,16 +152,15 @@ def main():
     print(f"\nCSV rows: {len(df)}")
     print(f"Scenarios: {df['Scenario'].nunique()}")
 
-    driver = GraphDatabase.driver(
-        NEO4J_URI,
-        auth=(NEO4J_USERNAME, NEO4J_PASSWORD),
+    driver = Neo4jStore(
+        NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD,
     )
 
     total_predictions = 0
 
     try:
 
-        driver.verify_connectivity()
+        driver.verify()
 
         print("\n✓ Neo4j connection successful")
         print("✓ CTU13 LSTM inference module loaded")

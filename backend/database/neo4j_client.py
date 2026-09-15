@@ -1,41 +1,20 @@
-import os
-from neo4j import GraphDatabase
+"""Backward-compatible accessors for the configured graph store."""
+
+from backend.graph_store import get_graph_store
 
 
-NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-NEO4J_USERNAME = os.getenv("NEO4J_USERNAME", "neo4j")
-NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
-NEO4J_DATABASE = os.getenv("NEO4J_DATABASE", "neo4j")
-
-
-if not NEO4J_PASSWORD:
-    raise RuntimeError(
-        "NEO4J_PASSWORD environment variable is not set."
-    )
-
-
-_driver = GraphDatabase.driver(
-    NEO4J_URI,
-    auth=(NEO4J_USERNAME, NEO4J_PASSWORD),
-)
-
-
-def verify_connection():
-    """Verify that FastAPI can connect to Neo4j."""
-    _driver.verify_connectivity()
+def verify_connection() -> bool:
+    get_graph_store().verify()
     return True
 
 
 def get_driver():
-    """Return the shared Neo4j driver."""
-    return _driver
+    return get_graph_store()
 
 
-def get_database():
-    """Return the configured Neo4j database name."""
-    return NEO4J_DATABASE
+def get_database() -> str:
+    return get_graph_store().database
 
 
-def close_driver():
-    """Close the Neo4j driver."""
-    _driver.close()
+def close_driver() -> None:
+    get_graph_store().close()
