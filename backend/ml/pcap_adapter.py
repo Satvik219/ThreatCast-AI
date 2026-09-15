@@ -1141,54 +1141,10 @@ def prepare_uploaded_pcap(
             "sequence_length": SEQUENCE_LENGTH,
             "timestamps": timestamps,
             "sequence": sequence,
-        },
-
-        "packet_evidence": packet_evidence,
-
-        "pcap_metadata": metadata,
-    }
-
-    dataframe, metadata = load_pcap_features(
-        path
-    )
-
-    if len(dataframe) < SEQUENCE_LENGTH:
-
-        raise ValueError(
-            f"PCAP produced only {len(dataframe)} "
-            f"temporal states. At least "
-            f"{SEQUENCE_LENGTH} states are required "
-            f"for model inference."
-        )
-
-    sequence = dataframe_to_sequence(
-        dataframe
-    )
-
-    timestamps = []
-
-    if "Timestamp" in dataframe.columns:
-
-        timestamps = [
-            str(value)
-            for value in dataframe.tail(
-                SEQUENCE_LENGTH
-            )["Timestamp"].tolist()
-        ]
-
-    packet_evidence = summarize_packet_evidence(
-        dataframe
-    )
-
-    return {
-        "dataframe": dataframe,
-        "payload": {
-            "feature_names": FEATURE_NAMES,
-            "sequence_length": SEQUENCE_LENGTH,
-            "timestamps": timestamps,
-            "sequence": sequence,
             "state_count": len(dataframe),
         },
+
         "packet_evidence": packet_evidence,
+
         "pcap_metadata": metadata,
     }

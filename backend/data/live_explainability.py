@@ -3,7 +3,6 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-import shap
 
 from backend.ml.inference import (
     FEATURE_NAMES,
@@ -97,6 +96,8 @@ def _get_explainer():
     global _explainer_cache
 
     if _explainer_cache is None:
+        import shap
+
         model = _load_model()
         background = _load_background()
 
@@ -106,6 +107,139 @@ def _get_explainer():
         )
 
     return _explainer_cache
+
+
+def _explain_sequence_with_world_model_occlusion(
+    sequence_array: np.ndarray,
+) -> dict:
+    from world_model.ctu13_risk_inference import (
+        _load_normalization,
+        predict_world_model_batch,
+    )
+
+    base_result = predict_world_model_batch(
+        [sequence_array.tolist()]
+    )
+    base_risk = float(
+        base_result["rollout"][0]["risk_probability"]
+    )
+    feature_mean, _feature_std = _load_normalization()
+
+    feature_records = []
+
+    for index, feature_name in enumerate(FEATURE_NAMES):
+        occluded = sequence_array.copy()
+        occluded[:, index] = float(feature_mean[index])
+
+        occluded_result = predict_world_model_batch(
+            [occluded.tolist()]
+        )
+        occluded_risk = float(
+            occluded_result["rollout"][0]["risk_probability"]
+        )
+        contribution = base_risk - occluded_risk
+
+        feature_records.append(
+            {
+                "feature": feature_name,
+                "shap_value": contribution,
+                "absolute_shap": abs(contribution),
+                "direction": (
+                    "increases forecast risk"
+                    if contribution > 0
+                    else "decreases forecast risk"
+                    if contribution < 0
+                    else "neutral"
+                ),
+                "current_value": float(
+                    sequence_array[-1, index]
+                ),
+                "occluded_risk": occluded_risk,
+            }
+        )
+
+    feature_records.sort(
+        key=lambda item: item["absolute_shap"],
+        reverse=True,
+    )
+
+    timestep_records = []
+    timestep_labels = [
+        "T-4",
+        "T-3",
+        "T-2",
+        "T-1",
+        "Current state",
+    ]
+
+    for timestep_index, label in enumerate(timestep_labels):
+        occluded = sequence_array.copy()
+        occluded[timestep_index, :] = feature_mean
+
+        occluded_result = predict_world_model_batch(
+            [occluded.tolist()]
+        )
+        occluded_risk = float(
+            occluded_result["rollout"][0]["risk_probability"]
+        )
+        contribution = abs(base_risk - occluded_risk)
+
+        timestep_records.append(
+            {
+                "timestep": timestep_index + 1,
+                "label": label,
+                "absolute_shap": contribution,
+                "percentage": 0.0,
+            }
+        )
+
+    total_timestep = sum(
+        item["absolute_shap"]
+        for item in timestep_records
+    )
+    if total_timestep > 0:
+        for item in timestep_records:
+            item["percentage"] = round(
+                item["absolute_shap"] / total_timestep * 100.0,
+                2,
+            )
+
+    timestep_records.sort(
+        key=lambda item: item["absolute_shap"],
+        reverse=True,
+    )
+
+    return {
+        "prediction": {
+            "probability": base_risk,
+            "probability_percent": round(
+                base_risk * 100.0,
+                4,
+            ),
+            "threshold": base_result["rollout"][0]["threshold"],
+            "warning": base_result["rollout"][0]["predicted_attack"],
+            "label": (
+                "FORECAST WARNING"
+                if base_result["rollout"][0]["predicted_attack"]
+                else "NORMAL"
+            ),
+            "model": base_result["model"],
+        },
+        "explanation_method": (
+            "World-model feature occlusion"
+        ),
+        "prediction_specific": True,
+        "input_shape": list(sequence_array.shape),
+        "features": FEATURE_NAMES,
+        "feature_contributions": feature_records,
+        "temporal_contributions": timestep_records,
+        "note": (
+            "TensorFlow/SHAP early-warning explanation was unavailable, so "
+            "feature importance was computed by occluding each feature in "
+            "the same 5-state input and measuring the change in the trained "
+            "PyTorch world-model T+1 forecast risk."
+        ),
+    }
 
 
 def _normalize_shap_values(values):
@@ -154,9 +288,14 @@ def explain_sequence(sequence: List[List[float]]) -> dict:
             "Input sequence contains NaN or infinite values."
         )
 
-    prediction = predict_early_warning(
-        sequence_array.tolist()
-    )
+    try:
+        prediction = predict_early_warning(
+            sequence_array.tolist()
+        )
+    except (RuntimeError, FileNotFoundError, ModuleNotFoundError):
+        return _explain_sequence_with_world_model_occlusion(
+            sequence_array
+        )
 
     scaler = _load_scaler()
 

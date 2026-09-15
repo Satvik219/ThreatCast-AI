@@ -4,7 +4,6 @@ from typing import List
 import joblib
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -41,6 +40,15 @@ def _load_model():
     global _model
 
     if _model is None:
+        try:
+            import tensorflow as tf
+        except ImportError as exc:
+            raise RuntimeError(
+                "TensorFlow is required for the legacy CTU13 LSTM early-warning "
+                "model. Install project dependencies or use the PyTorch world "
+                "model rollout path."
+            ) from exc
+
         if not MODEL_PATH.exists():
             raise FileNotFoundError(
                 f"CTU13 LSTM model not found: {MODEL_PATH}"
