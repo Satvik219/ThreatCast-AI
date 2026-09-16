@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getDashboardSummary, getDashboardKpis } from '../services/api';
-import { buildPcapTopologyGraph, usePcapAnalysis } from '../context/PcapAnalysisContext';
+import { buildPcapTopologyGraph, buildUploadedRuleComparison, usePcapAnalysis } from '../context/PcapAnalysisContext';
 
 export function useDashboard() {
   const { analysis, fileName } = usePcapAnalysis();
@@ -16,7 +16,8 @@ export function useDashboard() {
       if (analysis) {
         const first = analysis.world_model?.rollout?.[0] || {};
         const probability = Number(first.risk_probability ?? 0);
-        const flaggedFlows = Number(analysis.packet_attribution?.flagged_flow_count ?? 0);
+        const ruleComparison = buildUploadedRuleComparison(analysis);
+        const flaggedFlows = Number(ruleComparison?.flagged_flow_count ?? analysis.packet_attribution?.flagged_flow_count ?? 0);
         const graph = buildPcapTopologyGraph(analysis.packet_attribution);
         const warning = Boolean(first.predicted_attack) || probability >= 0.08;
         const percent = `${(probability * 100).toFixed(2)}%`;

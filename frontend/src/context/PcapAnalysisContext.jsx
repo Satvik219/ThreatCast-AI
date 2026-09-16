@@ -51,6 +51,98 @@ export function buildPcapTopologyGraph(attribution) {
   };
 }
 
+export function buildPcapRuleComparison(analysis) {
+  if (!analysis) return null;
+  const attribution = analysis.packet_attribution;
+  const rollout = analysis.world_model?.rollout || [];
+  if (!attribution || !rollout.length) return null;
+
+  const modelItem = rollout[0];
+  const probability = Number(modelItem.risk_probability ?? 0);
+  const modelAlert = Boolean(modelItem.predicted_attack) || probability >= 0.08;
+  const flaggedCount = Number(attribution.flagged_flow_count ?? 0);
+  const ruleAlert = flaggedCount > 0;
+  const disagreement = modelAlert !== ruleAlert;
+  const ruleName = flaggedCount > 0 ? 'PCAP Flow Evidence Rules' : 'No PCAP Flow Rule Trigger';
+
+  return {
+    total_disagreements: disagreement ? 1 : 0,
+    disagreements: disagreement ? [{
+      id: 'pcap-disagreement-1',
+      timestamp: new Date().toISOString(),
+      model_prediction: modelAlert ? 'Early Warning' : 'No Early Warning',
+      model_confidence: probability,
+      model_architecture: 'CTU13 LSTM',
+      rule_name: ruleName,
+      rule_output: ruleAlert ? `${flaggedCount} flagged flow(s)` : 'No flagged flows',
+      rule_severity: ruleAlert ? 'High' : 'Low',
+      status: 'Disagreement',
+      why_it_matters: 'The uploaded PCAP produced different model and deterministic flow-evidence decisions for the same capture.',
+      observed_signals: attribution.flagged_flows?.slice(0, 3)?.flatMap((flow) => flow.evidence_reasons || []) || [],
+      network_context: 'Uploaded PCAP',
+      recommended_action: 'Review the flagged flows and the five-state model input window.',
+      target_node: 'Uploaded capture',
+    }] : [],
+    analytical_summary: disagreement
+      ? 'The CTU13 model and deterministic PCAP flow rules disagree for this uploaded capture.'
+      : `The CTU13 model and deterministic PCAP flow rules agree: ${modelAlert ? 'both indicate elevated activity.' : 'neither indicates elevated activity.'}`,
+    last_updated: new Date().toISOString(),
+    model_alert: modelAlert,
+    rule_alert: ruleAlert,
+    flagged_flow_count: flaggedCount,
+  };
+}
+
+export function buildUploadedRuleComparison(analysis) {
+  if (!analysis) return null;
+  if (analysis.packet_attribution) return buildPcapRuleComparison(analysis);
+
+  const sequence = analysis.input?.sequence || [];
+  const latest = sequence[sequence.length - 1] || [];
+  const featureNames = analysis.features || [];
+  const values = Object.fromEntries(featureNames.map((name, index) => [name, Number(latest[index]) || 0]));
+  const modelItem = analysis.world_model?.rollout?.[0] || {};
+  const probability = Number(modelItem.risk_probability ?? 0);
+  const modelAlert = Boolean(modelItem.predicted_attack) || probability >= 0.08;
+  const ruleSignals = [
+    values.Flow_Count > 30,
+    values.Total_Packets > 1000,
+    values.Total_Bytes > 500000,
+    values.Flow_Count_Change > 20,
+    values.Total_Packets_Change > 500,
+  ];
+  const triggeredRules = ruleSignals.filter(Boolean).length;
+  const ruleAlert = triggeredRules > 0;
+  const disagreement = modelAlert !== ruleAlert;
+
+  return {
+    total_disagreements: disagreement ? 1 : 0,
+    disagreements: disagreement ? [{
+      id: 'csv-disagreement-1',
+      timestamp: new Date().toISOString(),
+      model_prediction: modelAlert ? 'Early Warning' : 'No Early Warning',
+      model_confidence: probability,
+      model_architecture: 'CTU13 LSTM',
+      rule_name: 'CSV Feature Threshold Rules',
+      rule_output: `${triggeredRules} feature rule(s) triggered`,
+      rule_severity: ruleAlert ? 'High' : 'Low',
+      status: 'Disagreement',
+      why_it_matters: 'The uploaded CSV model result differs from deterministic thresholds applied to its latest feature state.',
+      observed_signals: Object.entries(values).filter(([, value]) => value > 0).slice(0, 5).map(([name, value]) => `${name}=${value}`),
+      network_context: 'Uploaded CSV telemetry',
+      recommended_action: 'Review the latest CSV feature state and model forecast window.',
+      target_node: 'Uploaded CSV',
+    }] : [],
+    analytical_summary: disagreement
+      ? 'The CTU13 model and deterministic CSV feature rules disagree for this uploaded file.'
+      : `The CTU13 model and deterministic CSV feature rules agree: ${modelAlert ? 'both indicate elevated activity.' : 'neither indicates elevated activity.'}`,
+    last_updated: new Date().toISOString(),
+    model_alert: modelAlert,
+    rule_alert: ruleAlert,
+    flagged_flow_count: triggeredRules,
+  };
+}
+
 export function PcapAnalysisProvider({ children }) {
   const [analysis, setAnalysis] = useState(null);
   const [fileName, setFileName] = useState('');

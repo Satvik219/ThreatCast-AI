@@ -140,7 +140,7 @@ export default function Header({
 
           <label className="flex h-9 cursor-pointer items-center gap-2 rounded-xl border border-[#00E5FF]/25 bg-[#00E5FF]/[0.06] px-3 text-[10px] font-semibold uppercase tracking-wider text-[#7DEBFF] hover:bg-[#00E5FF]/[0.12]">
             <Upload className="h-3.5 w-3.5" />
-            <span>{loading ? 'Analyzing...' : 'Upload PCAP'}</span>
+            <span>{loading ? 'Analyzing...' : 'Upload Data'}</span>
             <input type="file" accept=".pcap,.pcapng,.cap,.csv" className="hidden" onChange={handlePcapChange} disabled={loading} />
           </label>
 

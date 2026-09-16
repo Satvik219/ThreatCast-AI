@@ -162,7 +162,7 @@ export const getExplainability = (incidentId = 'INC-8042') =>
 
 export const getLiveExplainability = (sequence) =>
   apiClient
-    .post('/api/demo/live-explain', sequence)
+    .post('/api/demo/live-explain', sequence, { timeout: 60000 })
     .then((res) => res.data);
 
 // -----------------------------------------------------------------------------
@@ -196,6 +196,7 @@ export const getCTU13Demo = (scenario = 12, states = 20) =>
         scenario,
         states,
       },
+      timeout: 30000,
     })
     .then((res) => res.data);
 

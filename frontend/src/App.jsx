@@ -20,7 +20,6 @@ import Disagreements from "./pages/Disagreements";
 import Incidents from "./pages/Incidents";
 import Explainability from "./pages/Explainability";
 import ResearchDemo from "./pages/ResearchDemo";
-import WorldModel from "./pages/WorldModel";
 import Login from "./pages/Login";
 import AppErrorBoundary from "./components/common/AppErrorBoundary";
 
@@ -148,12 +147,6 @@ export default function App() {
           <Route
             path="research-demo"
             element={<ResearchDemo />}
-          />
-
-          {/* WORLD MODEL */}
-          <Route
-            path="world-model"
-            element={<WorldModel />}
           />
 
         </Route>

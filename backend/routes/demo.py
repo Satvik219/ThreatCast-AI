@@ -157,8 +157,14 @@ def get_ctu13_demo(
 
         row = scenario_df.iloc[index]
 
+        feature_values = {
+            feature: float(row[feature])
+            for feature in FEATURE_NAMES
+        }
+
         predictions.append(
             {
+                **feature_values,
                 "timestamp": row["Timestamp"].isoformat(),
                 "probability": result["probability"],
                 "probability_percent": result["probability_percent"],

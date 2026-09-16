@@ -1,7 +1,13 @@
 import React from "react";
+import { usePcapAnalysis, buildUploadedRuleComparison } from '../context/PcapAnalysisContext';
 
 
 export default function Disagreements() {
+  const { analysis, fileName } = usePcapAnalysis();
+  const pcapComparison = buildUploadedRuleComparison(analysis);
+  const activeComparison = pcapComparison || null;
+  const isConnected = Boolean(activeComparison);
+  const disagreementCount = activeComparison?.total_disagreements ?? 0;
 
   return (
     <div className="min-h-screen bg-[#fcfaf6] px-5 py-6 md:px-8">
@@ -26,7 +32,7 @@ export default function Disagreements() {
 
 
           <div className="rounded-full border border-[#ecd7a5] bg-[#fff7d9] px-4 py-2 text-xs font-semibold text-[#a94d08]">
-            INTEGRATION PENDING
+            {isConnected ? 'PCAP RULES CONNECTED' : 'INTEGRATION PENDING'}
           </div>
 
         </div>
@@ -64,12 +70,13 @@ export default function Disagreements() {
           </div>
 
           <div className="mt-3 text-2xl font-bold text-[#301a0a]">
-            Not Connected
+            {isConnected ? 'Connected' : 'Not Connected'}
           </div>
 
           <div className="mt-2 text-sm leading-6 text-[#806b58]">
-            No deterministic rule output is currently
-            connected to the deployed CTU13 inference pipeline.
+            {isConnected
+              ? `Evaluating ${fileName} with deterministic rules.`
+              : 'Upload a CSV or PCAP from the header to connect deterministic rules to the model.'}
           </div>
 
         </div>
@@ -86,16 +93,18 @@ export default function Disagreements() {
         </div>
 
         <div className="mt-3 text-2xl font-bold text-[#4d7c0f]">
-          No Model-Rule Disagreement Claim
+          {isConnected
+            ? disagreementCount > 0
+              ? `${disagreementCount} Model-Rule Disagreement`
+              : 'Model and Rule Agreement'
+            : 'No Model-Rule Disagreement Claim'}
         </div>
 
         <p className="mt-3 max-w-3xl text-sm leading-6 text-[#5f4b39]">
 
-          A disagreement cannot be calculated until both
-          the CTU13 LSTM prediction and a deterministic rule
-          result are available for the same observation.
-          ThreatCast therefore does not fabricate a disagreement
-          count or security signal.
+          {isConnected
+            ? activeComparison.analytical_summary
+            : 'A disagreement is calculated after a PCAP upload provides both the CTU13 LSTM prediction and deterministic flow-evidence rules for the same capture.'}
 
         </p>
 
@@ -107,7 +116,7 @@ export default function Disagreements() {
       <div className="mt-6 rounded-2xl border border-[#ebdcc7] bg-white p-6">
 
         <div className="text-xs font-bold uppercase tracking-wider text-[#a94d08]">
-          Why this is currently zero
+          {isConnected ? 'Uploaded PCAP comparison' : 'Why this is currently zero'}
         </div>
 
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -136,11 +145,11 @@ export default function Disagreements() {
             </div>
 
             <div className="mt-2 text-sm font-semibold text-[#301a0a]">
-              Rule result unavailable
+              {isConnected ? 'Rule result available' : 'Rule result unavailable'}
             </div>
 
             <div className="mt-1 text-xs leading-5 text-[#806b58]">
-              No connected deterministic rule evaluation.
+              {isConnected ? `${activeComparison.flagged_flow_count} flagged flow(s) evaluated.` : 'Upload a PCAP to evaluate deterministic flow evidence.'}
             </div>
 
           </div>
@@ -153,11 +162,11 @@ export default function Disagreements() {
             </div>
 
             <div className="mt-2 text-sm font-semibold text-[#301a0a]">
-              Comparison disabled
+              {isConnected ? 'Comparison active' : 'Comparison disabled'}
             </div>
 
             <div className="mt-1 text-xs leading-5 text-[#806b58]">
-              No disagreement claim is generated.
+              {isConnected ? `${disagreementCount} disagreement(s) for this PCAP.` : 'No disagreement claim is generated.'}
             </div>
 
           </div>
@@ -177,11 +186,9 @@ export default function Disagreements() {
 
         <p className="mt-2 text-sm leading-6 text-[#5f4b39]">
 
-          Once the rule engine is implemented, this page can
-          compare the rule result and the LSTM early-warning
-          classification for the same network-state window.
-          Until then, this page intentionally reports the
-          integration limitation rather than simulated results.
+          {isConnected
+            ? 'This comparison uses deterministic flagged-flow evidence from the uploaded PCAP and the first CTU13 world-model forecast horizon.'
+            : 'Upload a PCAP from the global header to compare deterministic flow evidence with the CTU13 LSTM classification.'}
 
         </p>
 

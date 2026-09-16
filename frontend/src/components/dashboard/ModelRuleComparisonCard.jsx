@@ -4,9 +4,13 @@ import {
   Info,
   Shield,
 } from 'lucide-react';
+import { buildUploadedRuleComparison, usePcapAnalysis } from '../../context/PcapAnalysisContext';
 
 
 export default function ModelRuleComparisonCard() {
+  const { analysis, fileName } = usePcapAnalysis();
+  const comparison = buildUploadedRuleComparison(analysis);
+  const connected = Boolean(comparison);
 
   return (
     <div className="p-6 md:p-7 rounded-2xl bg-white border border-[#ebdcc7] shadow-xs flex flex-col justify-between space-y-5">
@@ -24,7 +28,9 @@ export default function ModelRuleComparisonCard() {
           </h3>
 
           <p className="text-xs text-[#544230]">
-            Comparison will be enabled after the deterministic rule engine is connected to the CTU13 inference pipeline.
+            {connected
+              ? `Deterministic rules evaluated for ${fileName}.`
+              : 'Upload a CSV or PCAP from the header to connect deterministic rules to the CTU13 inference pipeline.'}
           </p>
 
         </div>
@@ -74,11 +80,13 @@ export default function ModelRuleComparisonCard() {
           <div>
 
             <span className="text-sm font-bold text-[#301a0a] block">
-              Not Connected
+              {connected ? 'Connected' : 'Not Connected'}
             </span>
 
             <span className="text-[11px] text-[#7a644c] font-mono block mt-0.5">
-              Deterministic rule integration pending
+              {connected
+                ? `${comparison.flagged_flow_count} flagged flow(s) evaluated`
+                : 'Deterministic rule integration pending'}
             </span>
 
           </div>
@@ -95,11 +103,13 @@ export default function ModelRuleComparisonCard() {
         <div>
 
           <span className="text-xs font-bold text-[#78350f] font-mono">
-            NO MODEL-RULE DISAGREEMENT CLAIM
+            {connected ? 'PCAP MODEL-RULE COMPARISON' : 'NO MODEL-RULE DISAGREEMENT CLAIM'}
           </span>
 
           <p className="text-xs text-[#544230] leading-relaxed mt-1">
-            The current CTU13 LSTM integration produces an early-warning probability only. No connected rule-engine comparison is being presented as a live security signal.
+            {connected
+              ? comparison.analytical_summary
+              : 'The current CTU13 LSTM integration produces an early-warning probability only. Upload a PCAP to compare it with deterministic flow rules.'}
           </p>
 
         </div>
