@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import MotionReveal from "../components/common/MotionReveal";
 import { usePcapAnalysis } from "../context/PcapAnalysisContext";
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+const API_BASE_URL = "http://127.0.0.1:8000";
 const WARNING_THRESHOLD = 0.08;
 
 

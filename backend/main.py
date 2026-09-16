@@ -58,6 +58,11 @@ origins = [
     if origin.strip()
 ]
 
+# Hackathon/local-development compatibility.
+if "*" not in origins:
+    origins.append("*")
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
