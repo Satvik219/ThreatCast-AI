@@ -15,9 +15,7 @@ export default function MotionReveal({
   const reduceMotion = useReducedMotion();
   // Sections below the fold rise into place as they enter the viewport.
   // The longer easing makes the movement noticeable without feeling sluggish.
-  const reveal = reduceMotion
-    ? { opacity: 1, y: 0 }
-    : { opacity: 0, y: 8 };
+  const reveal = { opacity: 1, y: 0 };
 
   return (
     <motion.div
