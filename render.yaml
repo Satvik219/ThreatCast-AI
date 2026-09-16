@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: threatcast-api
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    initialDeployHook: >-
+      python -m backend.database.import_ctu13 &&
+      python -m backend.database.import_predictions &&
+      python -m backend.database.store_warning_events
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: NEO4J_URI
+        sync: false
+      - key: NEO4J_USERNAME
+        value: neo4j
+      - key: NEO4J_PASSWORD
+        sync: false
+      - key: NEO4J_DATABASE
+        value: neo4j
+      - key: FABRIC_ENABLED
+        value: "false"
+      - key: FABRIC_WORKSPACE_ROOT
+        value: /app/blockchain
+      - key: FABRIC_LOCAL_LEDGER_PATH
+        value: /app/backend/data/blockchain/disagreements.json
