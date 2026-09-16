@@ -124,10 +124,10 @@ export default function InteractiveNetworkGraph({
         w-full
         min-h-[380px]
         rounded-2xl
-        bg-[#0D1115]
+        bg-threatcast-card
         border border-white/[0.08]
         flex items-center justify-center
-        text-[#59636D]
+        text-threatcast-muted
         font-mono
         text-xs
       ">
@@ -165,7 +165,7 @@ export default function InteractiveNetworkGraph({
         overflow-hidden
         rounded-2xl
         border border-white/[0.08]
-        bg-[#030405]
+        bg-threatcast-deep
         shadow-[0_25px_80px_rgba(0,0,0,0.38)]
         select-none
         group
@@ -224,7 +224,7 @@ export default function InteractiveNetworkGraph({
           h-24
           bg-gradient-to-b
           from-transparent
-          via-[#00E5FF]/[0.025]
+          via-[var(--tc-cyan)]/[0.025]
           to-transparent
           animate-[tc-scan_7s_linear_infinite]
         " />
@@ -243,7 +243,7 @@ export default function InteractiveNetworkGraph({
         gap-3
         px-4 py-3
         rounded-xl
-        bg-[#080A0D]/90
+        bg-threatcast-bg/90
         backdrop-blur-xl
         border border-white/[0.08]
         shadow-[0_10px_35px_rgba(0,0,0,0.28)]
@@ -259,40 +259,40 @@ export default function InteractiveNetworkGraph({
         ">
 
           {/* Normal */}
-          <span className="flex items-center gap-2 text-[#718096]">
+          <span className="flex items-center gap-2 text-[var(--tc-muted)]">
             <span className="
               w-2 h-2 rounded-full
-              bg-[#00FF9C]
+              bg-threatcast-green
               shadow-[0_0_8px_rgba(0,255,156,0.8)]
             " />
             Normal
           </span>
 
           {/* Suspicious */}
-          <span className="flex items-center gap-2 text-[#B8C0C8]">
+          <span className="flex items-center gap-2 text-threatcast-silver">
             <span className="
               w-2 h-2 rounded-full
-              bg-[#FFB000]
+              bg-threatcast-amber
               shadow-[0_0_8px_rgba(255,176,0,0.8)]
             " />
             Suspicious
           </span>
 
           {/* Compromised */}
-          <span className="flex items-center gap-2 text-[#FF1744]">
+          <span className="flex items-center gap-2 text-threatcast-red">
             <span className="
               w-2 h-2 rounded-full
-              bg-[#FF1744]
+              bg-[var(--tc-red)]
               shadow-[0_0_9px_rgba(255,23,68,0.9)]
             " />
             Compromised
           </span>
 
           {/* Forecast */}
-          <span className="flex items-center gap-2 text-[#00E5FF]">
+          <span className="flex items-center gap-2 text-threatcast-cyan">
             <span className="
               w-2 h-2 rounded-full
-              bg-[#00E5FF]
+              bg-threatcast-cyan
               shadow-[0_0_9px_rgba(0,229,255,0.9)]
             " />
             Forecast T+1..3
@@ -307,21 +307,21 @@ export default function InteractiveNetworkGraph({
           tracking-wider
         ">
 
-          <span className="flex items-center gap-2 text-[#FFB000]">
+          <span className="flex items-center gap-2 text-threatcast-amber">
             <span className="
               w-6 h-[2px]
-              bg-[#FFB000]
+              bg-threatcast-amber
               shadow-[0_0_7px_rgba(255,176,0,0.7)]
             " />
             Active Vector
           </span>
 
-          <span className="flex items-center gap-2 text-[#00E5FF]">
+          <span className="flex items-center gap-2 text-threatcast-cyan">
             <span className="
               w-6 h-[2px]
               border-t
               border-dashed
-              border-[#00E5FF]
+              border-threatcast-cyan
             " />
             Forecast Path
           </span>
@@ -351,9 +351,9 @@ export default function InteractiveNetworkGraph({
             x2="100%"
             y2="100%"
           >
-            <stop offset="0%" stopColor="#FF1744" />
-            <stop offset="50%" stopColor="#FFB000" />
-            <stop offset="100%" stopColor="#FF1744" />
+            <stop offset="0%" stopColor="var(--tc-red)" />
+            <stop offset="50%" stopColor="var(--tc-amber)" />
+            <stop offset="100%" stopColor="var(--tc-red)" />
           </linearGradient>
 
           <linearGradient
@@ -363,8 +363,8 @@ export default function InteractiveNetworkGraph({
             x2="100%"
             y2="100%"
           >
-            <stop offset="0%" stopColor="#00E5FF" />
-            <stop offset="100%" stopColor="#A855F7" />
+            <stop offset="0%" stopColor="var(--tc-cyan)" />
+            <stop offset="100%" stopColor="var(--tc-violet)" />
           </linearGradient>
 
           <linearGradient
@@ -374,8 +374,8 @@ export default function InteractiveNetworkGraph({
             x2="100%"
             y2="100%"
           >
-            <stop offset="0%" stopColor="#59636D" />
-            <stop offset="100%" stopColor="#B8C0C8" />
+            <stop offset="0%" stopColor="var(--tc-dark-chrome)" />
+            <stop offset="100%" stopColor="var(--tc-silver)" />
           </linearGradient>
 
           {/* =================================================
@@ -429,7 +429,7 @@ export default function InteractiveNetworkGraph({
           >
             <path
               d="M 0 1 L 8 4.5 L 0 8 z"
-              fill="#FF1744"
+              fill="var(--tc-red)"
             />
           </marker>
 
@@ -443,7 +443,7 @@ export default function InteractiveNetworkGraph({
           >
             <path
               d="M 0 1 L 8 4.5 L 0 8 z"
-              fill="#00E5FF"
+              fill="var(--tc-cyan)"
             />
           </marker>
 
@@ -457,7 +457,7 @@ export default function InteractiveNetworkGraph({
           >
             <path
               d="M 0 1 L 6 3.5 L 0 6 z"
-              fill="#59636D"
+              fill="var(--tc-dark-chrome)"
             />
           </marker>
         </defs>
@@ -542,8 +542,8 @@ export default function InteractiveNetworkGraph({
                   fill="none"
                   stroke={
                     isAttack
-                      ? '#FF1744'
-                      : '#00E5FF'
+                      ? 'var(--tc-red)'
+                      : 'var(--tc-cyan)'
                   }
                   strokeWidth={
                     isAttack
@@ -582,8 +582,8 @@ export default function InteractiveNetworkGraph({
                   r={isAttack ? 3.2 : 2.5}
                   fill={
                     isAttack
-                      ? '#FF1744'
-                      : '#00E5FF'
+                      ? 'var(--tc-red)'
+                      : 'var(--tc-cyan)'
                   }
                   filter={
                     isAttack
@@ -606,14 +606,14 @@ export default function InteractiveNetworkGraph({
                 width="60"
                 height="20"
                 rx="6"
-                fill="#080A0D"
+                fill="var(--tc-bg)"
                 fillOpacity="0.94"
                 stroke={
                   isAttack
-                    ? '#FF1744'
+                    ? 'var(--tc-red)'
                     : isForecast
-                    ? '#00E5FF'
-                    : '#59636D'
+                    ? 'var(--tc-cyan)'
+                    : 'var(--tc-dark-chrome)'
                 }
                 strokeOpacity={
                   isAttack
@@ -630,10 +630,10 @@ export default function InteractiveNetworkGraph({
                 y={midY + 3.5}
                 fill={
                   isAttack
-                    ? '#FFB000'
+                    ? 'var(--tc-amber)'
                     : isForecast
-                    ? '#00E5FF'
-                    : '#718096'
+                    ? 'var(--tc-cyan)'
+                    : 'var(--tc-muted)'
                 }
                 fontSize="9"
                 fontFamily="JetBrains Mono, monospace"
@@ -673,38 +673,38 @@ export default function InteractiveNetworkGraph({
           const Icon =
             ICON_MAP[node.type] || Server;
 
-          let ringColor = '#59636D';
-          let bgColor = '#0D1115';
-          let iconColor = '#B8C0C8';
+          let ringColor = 'var(--tc-dark-chrome)';
+          let bgColor = 'var(--tc-card)';
+          let iconColor = 'var(--tc-silver)';
           let glowColor = 'rgba(184,192,200,0.15)';
 
           if (
             node.state === 'compromised' ||
             isInAttackPath
           ) {
-            ringColor = '#FF1744';
-            bgColor = '#18080D';
-            iconColor = '#FF1744';
+            ringColor = 'var(--tc-red)';
+            bgColor = 'var(--tc-card)';
+            iconColor = 'var(--tc-red)';
             glowColor = 'rgba(255,23,68,0.35)';
           } else if (
             node.state === 'suspicious'
           ) {
-            ringColor = '#FFB000';
-            bgColor = '#181106';
-            iconColor = '#FFB000';
+            ringColor = 'var(--tc-amber)';
+            bgColor = 'var(--tc-card-elevated)';
+            iconColor = 'var(--tc-amber)';
             glowColor = 'rgba(255,176,0,0.3)';
           } else if (
             node.state === 'target' ||
             isForecastTarget
           ) {
-            ringColor = '#00E5FF';
-            bgColor = '#06161A';
-            iconColor = '#00E5FF';
+            ringColor = 'var(--tc-cyan)';
+            bgColor = 'var(--tc-card-elevated)';
+            iconColor = 'var(--tc-cyan)';
             glowColor = 'rgba(0,229,255,0.3)';
           } else {
-            ringColor = '#00FF9C';
-            bgColor = '#06140F';
-            iconColor = '#00FF9C';
+            ringColor = 'var(--tc-green)';
+            bgColor = 'var(--tc-card-elevated)';
+            iconColor = 'var(--tc-green)';
             glowColor = 'rgba(0,255,156,0.2)';
           }
 
@@ -759,7 +759,7 @@ export default function InteractiveNetworkGraph({
                 <circle
                   r="35"
                   fill="none"
-                  stroke="#E8EDF2"
+                  stroke="var(--tc-chrome)"
                   strokeWidth="1.5"
                   strokeDasharray="5 4"
                   opacity="0.75"
@@ -790,8 +790,8 @@ export default function InteractiveNetworkGraph({
               {/* Metallic outer ring */}
               <circle
                 r="26"
-                fill="#030405"
-                stroke="#59636D"
+                fill="var(--tc-bg-deep)"
+                stroke="var(--tc-dark-chrome)"
                 strokeWidth="1"
               />
 
@@ -849,7 +849,7 @@ export default function InteractiveNetworkGraph({
                 width="30"
                 height="16"
                 rx="5"
-                fill="#080A0D"
+                fill="var(--tc-bg)"
                 stroke={ringColor}
                 strokeWidth="1"
               />
@@ -870,7 +870,7 @@ export default function InteractiveNetworkGraph({
               <text
                 x="0"
                 y="38"
-                fill="#E8EDF2"
+                fill="var(--tc-chrome)"
                 fontSize="10.5"
                 fontWeight="800"
                 textAnchor="middle"
@@ -884,7 +884,7 @@ export default function InteractiveNetworkGraph({
               <text
                 x="0"
                 y="51"
-                fill="#59636D"
+                fill="var(--tc-dark-chrome)"
                 fontSize="8.5"
                 fontFamily="JetBrains Mono, monospace"
                 textAnchor="middle"
@@ -910,7 +910,7 @@ export default function InteractiveNetworkGraph({
         gap-3
         px-4 py-3
         rounded-xl
-        bg-[#080A0D]/90
+        bg-threatcast-bg/90
         backdrop-blur-xl
         border border-white/[0.08]
         font-mono
@@ -921,11 +921,11 @@ export default function InteractiveNetworkGraph({
           text-[9px]
           uppercase
           tracking-wider
-          text-[#718096]
+          text-[var(--tc-muted)]
         ">
           <Activity className="
             w-3.5 h-3.5
-            text-[#00E5FF]
+            text-threatcast-cyan
             drop-shadow-[0_0_6px_rgba(0,229,255,0.5)]
           " />
 
@@ -938,17 +938,17 @@ export default function InteractiveNetworkGraph({
           uppercase
           tracking-wider
           font-bold
-          text-[#FFB000]
+          text-threatcast-amber
         ">
           <span className="
             w-1.5 h-1.5
             rounded-full
-            bg-[#FFB000]
+            bg-threatcast-amber
             shadow-[0_0_7px_rgba(255,176,0,0.8)]
           " />
 
           High-Risk Nodes:
-          <span className="text-[#E8EDF2]">
+          <span className="text-threatcast-chrome">
             {graphData.high_risk_nodes_count || 0}
           </span>
         </span>
@@ -962,7 +962,7 @@ export default function InteractiveNetworkGraph({
         absolute top-24 left-5
         text-[7px]
         font-mono
-        text-[#59636D]
+        text-threatcast-muted
         tracking-[0.2em]
       ">
         NETWORK TOPOLOGY
@@ -972,7 +972,7 @@ export default function InteractiveNetworkGraph({
         absolute top-24 right-5
         text-[7px]
         font-mono
-        text-[#59636D]
+        text-threatcast-muted
         tracking-[0.2em]
       ">
         LIVE GRAPH

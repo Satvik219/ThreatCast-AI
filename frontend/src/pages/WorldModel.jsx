@@ -39,7 +39,7 @@ export default function WorldModel() {
       </section>
 
       {/* PIPELINE */}
-      <section className="rounded-2xl border border-cyber-brown-200 bg-white p-5 shadow-sm">
+      <section className="rounded-2xl border border-cyber-brown-200 bg-threatcast-card p-5 shadow-sm">
 
         <div className="grid grid-cols-1 gap-3 md:grid-cols-5">
 
@@ -56,7 +56,7 @@ export default function WorldModel() {
                 className="
                   rounded-xl
                   border border-cyber-brown-100
-                  bg-[#fbf8f4]
+                  bg-threatcast-bg
                   p-4
                 "
               >

@@ -14,12 +14,12 @@ export default function IncidentTable({
 }) {
   if (!incidents || incidents.length === 0) {
     return (
-      <div className="p-12 text-center bg-white rounded-2xl border border-[#ebdcc7] shadow-xs space-y-3">
-        <div className="w-12 h-12 rounded-full bg-[#fcfaf7] border border-[#ebdcc7] flex items-center justify-center text-[#b45309] mx-auto">
+      <div className="p-12 text-center bg-threatcast-card rounded-2xl border border-tc-border shadow-xs space-y-3">
+        <div className="w-12 h-12 rounded-full bg-threatcast-card border border-tc-border flex items-center justify-center text-threatcast-cyan mx-auto">
           <ShieldAlert className="w-6 h-6" />
         </div>
-        <h3 className="text-sm font-bold text-[#221207]">No persistent incidents are currently stored.</h3>
-        <p className="text-xs text-[#7a644c] max-w-md mx-auto">
+        <h3 className="text-sm font-bold text-threatcast-text">No persistent incidents are currently stored.</h3>
+        <p className="text-xs text-threatcast-muted max-w-md mx-auto">
           The persistent Neo4j pipeline is connected (0 Incident Records). The CTU13 dataset pipeline currently has no Incident nodes stored in the database.
         </p>
       </div>
@@ -39,10 +39,10 @@ export default function IncidentTable({
   };
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-[#ebdcc7] bg-white shadow-xs">
+    <div className="overflow-x-auto rounded-2xl border border-tc-border bg-threatcast-card shadow-xs">
       <table className="w-full text-left border-collapse text-xs">
         <thead>
-          <tr className="bg-[#fcfaf7] border-b border-[#ebdcc7] text-[#7a644c] font-mono uppercase text-[10px] tracking-wider">
+          <tr className="bg-threatcast-card border-b border-tc-border text-threatcast-muted font-mono uppercase text-[10px] tracking-wider">
             <th className="py-3 px-4 font-bold">Incident ID</th>
             <th className="py-3 px-4 font-bold">Detected</th>
             <th className="py-3 px-4 font-bold">Assessment</th>
@@ -54,28 +54,28 @@ export default function IncidentTable({
           </tr>
         </thead>
 
-        <tbody className="divide-y divide-[#f5efe6] font-mono">
+        <tbody className="divide-y divide-tc-border font-mono">
           {incidents.map((incident) => (
             <tr
               key={incident.id}
               onClick={() =>
                 onSelectIncident && onSelectIncident(incident)
               }
-              className="cursor-pointer hover:bg-[#fcfaf7] transition-colors group"
+              className="cursor-pointer hover:bg-threatcast-card transition-colors group"
             >
-              <td className="py-3.5 px-4 font-mono font-bold text-[#b45309] group-hover:text-[#92400e]">
+              <td className="py-3.5 px-4 font-mono font-bold text-threatcast-cyan group-hover:text-threatcast-cyan">
                 {incident.id}
               </td>
 
-              <td className="py-3.5 px-4 text-[#7a644c]">
+              <td className="py-3.5 px-4 text-threatcast-muted">
                 {incident.detected_at}
               </td>
 
-              <td className="py-3.5 px-4 font-bold text-[#221207] font-sans">
+              <td className="py-3.5 px-4 font-bold text-threatcast-text font-sans">
                 {incident.current_stage || 'Early-Warning Assessment'}
               </td>
 
-              <td className="py-3.5 px-4 text-[#544230] truncate max-w-[180px]">
+              <td className="py-3.5 px-4 text-threatcast-silver truncate max-w-[180px]">
                 {incident.affected_assets?.length
                   ? incident.affected_assets.join(', ')
                   : 'Not attributed'}
@@ -86,7 +86,7 @@ export default function IncidentTable({
               </td>
 
               <td className="py-3.5 px-4">
-                <span className="inline-flex items-center gap-1.5 text-[#b45309] font-bold">
+                <span className="inline-flex items-center gap-1.5 text-threatcast-cyan font-bold">
                   {getStatusIcon(incident.status)}
                   {incident.predicted_progression ||
                     'Early-warning signal'}
@@ -97,12 +97,12 @@ export default function IncidentTable({
                 <span
                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold ${
                     incident.status === 'Forecasted'
-                      ? 'bg-[#fef3c7] text-[#b45309] border border-[#fde68a]'
+                      ? 'bg-threatcast-elevated text-threatcast-cyan border border-threatcast-amber'
                       : incident.status === 'Investigating'
-                      ? 'bg-[#ffedd5] text-[#ea580c] border border-[#fdba74]'
+                      ? 'bg-threatcast-elevated text-threatcast-amber border border-threatcast-red'
                       : incident.status === 'Contained'
-                      ? 'bg-[#f5efe6] text-[#544230] border border-[#ded0bc]'
-                      : 'bg-[#f7fee7] text-[#4d7c0f] border border-[#d9f99d]'
+                      ? 'bg-threatcast-elevated text-threatcast-silver border border-tc-border'
+                      : 'bg-threatcast-elevated text-threatcast-green border border-tc-border'
                   }`}
                 >
                   {incident.status || 'Unknown'}
@@ -112,7 +112,7 @@ export default function IncidentTable({
               <td className="py-3.5 px-4 text-right">
                 <button
                   type="button"
-                  className="p-1.5 rounded-lg hover:bg-[#f5efe6] text-[#7a644c] group-hover:text-[#221207] transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-threatcast-elevated text-threatcast-muted group-hover:text-threatcast-text transition-colors"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>

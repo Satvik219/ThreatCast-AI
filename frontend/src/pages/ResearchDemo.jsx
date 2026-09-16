@@ -209,22 +209,20 @@ export default function ResearchDemo() {
       {/* HEADER */}
       {/* ------------------------------------------------------------------ */}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-tc-border bg-threatcast-card p-6 shadow-sm">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
 
           <div>
-            <div className="mb-2 inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-700">
+            <div className="mb-2 inline-flex items-center rounded-full border border-threatcast-green/30 bg-threatcast-green/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-threatcast-green">
               Research Evidence
             </div>
 
-            <h1 className="text-2xl font-bold text-slate-900">
+            <h1 className="text-2xl font-bold text-threatcast-text">
               ThreatCast Research Demo
             </h1>
 
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
-              Real CTU13 network-state inference with prediction-specific
-              live SHAP explanations and a separate packet-level world-model
-              research pipeline.
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-threatcast-silver">
+              Explore model evidence and prediction signals from network data.
             </p>
           </div>
 
@@ -232,7 +230,7 @@ export default function ResearchDemo() {
             type="button"
             onClick={loadDemo}
             disabled={loading}
-            className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-xl border border-tc-border bg-threatcast-card px-4 py-2.5 text-sm font-semibold text-threatcast-silver transition hover:bg-threatcast-elevated disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? 'Running...' : 'Refresh Demo'}
           </button>
@@ -243,12 +241,12 @@ export default function ResearchDemo() {
       {/* CONTROLS */}
       {/* ------------------------------------------------------------------ */}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="rounded-2xl border border-tc-border bg-threatcast-card p-5 shadow-sm">
         <div className="grid gap-4 md:grid-cols-2">
 
           <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
-              CTU13 Scenario
+            <label className="mb-2 block text-sm font-semibold text-threatcast-silver">
+              Dataset sample
             </label>
 
             <select
@@ -256,12 +254,12 @@ export default function ResearchDemo() {
               onChange={(event) =>
                 setScenario(Number(event.target.value))
               }
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-slate-500"
+              className="w-full rounded-xl border border-tc-border bg-threatcast-card px-3 py-2.5 text-sm text-threatcast-text outline-none focus:border-slate-500"
             >
               {Array.from({ length: 13 }, (_, index) => index + 1).map(
                 (value) => (
                   <option key={value} value={value}>
-                    Scenario {value}
+                    Sample {value}
                   </option>
                 )
               )}
@@ -269,7 +267,7 @@ export default function ResearchDemo() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-700">
+            <label className="mb-2 block text-sm font-semibold text-threatcast-silver">
               States to Display
             </label>
 
@@ -278,7 +276,7 @@ export default function ResearchDemo() {
               onChange={(event) =>
                 setStates(Number(event.target.value))
               }
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-slate-500"
+              className="w-full rounded-xl border border-tc-border bg-threatcast-card px-3 py-2.5 text-sm text-threatcast-text outline-none focus:border-slate-500"
             >
               {[10, 20, 30, 50].map((value) => (
                 <option key={value} value={value}>
@@ -296,19 +294,19 @@ export default function ResearchDemo() {
       {/* ------------------------------------------------------------------ */}
 
       {error && (
-        <section className="rounded-2xl border border-red-200 bg-red-50 p-5">
-          <div className="text-sm font-semibold text-red-800">
+        <section className="rounded-2xl border border-threatcast-red/30 bg-threatcast-red/10 p-5">
+          <div className="text-sm font-semibold text-threatcast-red">
             Research Demo Error
           </div>
 
-          <div className="mt-1 text-sm text-red-700">
+          <div className="mt-1 text-sm text-threatcast-red">
             {error}
           </div>
 
           <button
             type="button"
             onClick={loadDemo}
-            className="mt-4 rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-100"
+            className="mt-4 rounded-lg border border-threatcast-red/40 bg-threatcast-card px-3 py-2 text-sm font-semibold text-threatcast-red hover:bg-threatcast-red/20"
           >
             Retry
           </button>
@@ -320,12 +318,12 @@ export default function ResearchDemo() {
       {/* ------------------------------------------------------------------ */}
 
       {loading && (
-        <section className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
-          <div className="text-sm font-semibold text-slate-700">
+        <section className="rounded-2xl border border-tc-border bg-threatcast-card p-8 text-center shadow-sm">
+          <div className="text-sm font-semibold text-threatcast-silver">
             Running CTU13 inference and live SHAP...
           </div>
 
-          <div className="mt-2 text-xs text-slate-500">
+          <div className="mt-2 text-xs text-threatcast-muted">
             Loading the selected scenario and computing a
             prediction-specific explanation.
           </div>
@@ -340,69 +338,69 @@ export default function ResearchDemo() {
 
           <section>
             <div className="mb-3">
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-threatcast-text">
                 Live Model Status
               </h2>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-threatcast-muted">
                 Production CTU13 early-warning pipeline
               </p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="rounded-2xl border border-tc-border bg-threatcast-card p-5 shadow-sm">
+                <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   Model
                 </div>
 
-                <div className="mt-2 text-lg font-bold text-slate-900">
+                <div className="mt-2 text-lg font-bold text-threatcast-text">
                   CTU13 LSTM
                 </div>
 
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-threatcast-muted">
                   Real production artifact
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="rounded-2xl border border-tc-border bg-threatcast-card p-5 shadow-sm">
+                <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   Input Window
                 </div>
 
-                <div className="mt-2 text-lg font-bold text-slate-900">
+                <div className="mt-2 text-lg font-bold text-threatcast-text">
                   5 × 30 sec
                 </div>
 
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-threatcast-muted">
                   150 seconds temporal context
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="rounded-2xl border border-tc-border bg-threatcast-card p-5 shadow-sm">
+                <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   Features
                 </div>
 
-                <div className="mt-2 text-lg font-bold text-slate-900">
+                <div className="mt-2 text-lg font-bold text-threatcast-text">
                   12
                 </div>
 
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-threatcast-muted">
                   Production feature vector
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="rounded-2xl border border-tc-border bg-threatcast-card p-5 shadow-sm">
+                <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   Warning Threshold
                 </div>
 
-                <div className="mt-2 text-lg font-bold text-slate-900">
+                <div className="mt-2 text-lg font-bold text-threatcast-text">
                   8%
                 </div>
 
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-threatcast-muted">
                   Early-warning decision threshold
                 </div>
               </div>
@@ -416,35 +414,35 @@ export default function ResearchDemo() {
 
           <section>
             <div className="mb-3">
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-threatcast-text">
                 Current Prediction
               </h2>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-threatcast-muted">
                 Generated from the selected CTU13 scenario
               </p>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="rounded-2xl border border-tc-border bg-threatcast-card p-6 shadow-sm">
+                <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   Warning Probability
                 </div>
 
-                <div className="mt-3 text-4xl font-bold text-slate-900">
+                <div className="mt-3 text-4xl font-bold text-threatcast-text">
                   {formatProbability(
                     prediction?.probability ?? latest?.probability
                   )}
                 </div>
 
-                <div className="mt-2 text-xs text-slate-500">
+                <div className="mt-2 text-xs text-threatcast-muted">
                   Threshold: 8%
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="rounded-2xl border border-tc-border bg-threatcast-card p-6 shadow-sm">
+                <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   Classification
                 </div>
 
@@ -452,8 +450,8 @@ export default function ResearchDemo() {
                   <span
                     className={`inline-flex rounded-full px-3 py-1.5 text-sm font-bold ${
                       prediction?.warning
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-emerald-100 text-emerald-700'
+                        ? 'bg-red-100 text-threatcast-red'
+                        : 'bg-threatcast-green/10 text-threatcast-green'
                     }`}
                   >
                     {prediction?.label ||
@@ -463,21 +461,21 @@ export default function ResearchDemo() {
                   </span>
                 </div>
 
-                <div className="mt-3 text-xs text-slate-500">
+                <div className="mt-3 text-xs text-threatcast-muted">
                   Model: CTU13 LSTM
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="rounded-2xl border border-tc-border bg-threatcast-card p-6 shadow-sm">
+                <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   Latest State
                 </div>
 
-                <div className="mt-3 text-sm font-bold text-slate-900">
+                <div className="mt-3 text-sm font-bold text-threatcast-text">
                   Scenario {scenario}
                 </div>
 
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-threatcast-muted">
                   {formatDate(
                     prediction?.timestamp ||
                       latest?.timestamp
@@ -492,21 +490,21 @@ export default function ResearchDemo() {
           {/* TIMELINE */}
           {/* -------------------------------------------------------------- */}
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="rounded-2xl border border-tc-border bg-threatcast-card p-6 shadow-sm">
 
             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
+                <h2 className="text-lg font-bold text-threatcast-text">
                   CTU13 Prediction Timeline
                 </h2>
 
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-threatcast-muted">
                   Chronological early-warning probability across the selected
                   network states
                 </p>
               </div>
 
-              <div className="text-xs font-semibold text-slate-500">
+              <div className="text-xs font-semibold text-threatcast-muted">
                 {flaggedStates.length} flagged state
                 {flaggedStates.length === 1 ? '' : 's'}
               </div>
@@ -515,7 +513,7 @@ export default function ResearchDemo() {
             <div className="mt-6 overflow-x-auto">
               <div className="min-w-[720px] space-y-2">
 
-                <div className="grid grid-cols-[1fr_130px_130px_120px] gap-3 border-b border-slate-200 px-3 pb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <div className="grid grid-cols-[1fr_130px_130px_120px] gap-3 border-b border-tc-border px-3 pb-3 text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   <div>Timestamp</div>
                   <div>Probability</div>
                   <div>Target</div>
@@ -536,19 +534,19 @@ export default function ResearchDemo() {
                       key={`${state?.timestamp || index}-${index}`}
                       className={`grid grid-cols-[1fr_130px_130px_120px] gap-3 rounded-xl px-3 py-3 text-sm ${
                         warning
-                          ? 'bg-red-50'
-                          : 'bg-slate-50'
+                          ? 'bg-threatcast-red/10'
+                          : 'bg-threatcast-elevated'
                       }`}
                     >
-                      <div className="text-slate-700">
+                      <div className="text-threatcast-silver">
                         {formatDate(state?.timestamp)}
                       </div>
 
-                      <div className="font-semibold text-slate-900">
+                      <div className="font-semibold text-threatcast-text">
                         {formatProbability(probability)}
                       </div>
 
-                      <div className="text-slate-600">
+                      <div className="text-threatcast-silver">
                         {state?.actual_target === 1
                           ? 'Early warning target'
                           : 'Normal'}
@@ -558,8 +556,8 @@ export default function ResearchDemo() {
                         <span
                           className={`rounded-full px-2.5 py-1 text-xs font-bold ${
                             warning
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-emerald-100 text-emerald-700'
+                              ? 'bg-red-100 text-threatcast-red'
+                              : 'bg-threatcast-green/10 text-threatcast-green'
                           }`}
                         >
                           {warning ? 'WARNING' : 'NORMAL'}
@@ -579,11 +577,11 @@ export default function ResearchDemo() {
 
           <section>
             <div className="mb-3">
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-threatcast-text">
                 Live Prediction-Specific Explainability
               </h2>
 
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-threatcast-muted">
                 SHAP contributions computed from the exact 5-state sequence
                 used for the current prediction
               </p>
@@ -593,21 +591,21 @@ export default function ResearchDemo() {
 
               {/* FEATURE CONTRIBUTIONS */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="rounded-2xl border border-tc-border bg-threatcast-card p-6 shadow-sm">
 
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="font-bold text-slate-900">
+                    <h3 className="font-bold text-threatcast-text">
                       Feature Contributions
                     </h3>
 
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-threatcast-muted">
                       Aggregated SHAP contribution across the five-state
                       sequence
                     </p>
                   </div>
 
-                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                  <span className="rounded-full bg-threatcast-cyan/10 px-3 py-1 text-xs font-semibold text-threatcast-cyan">
                     LIVE SHAP
                   </span>
                 </div>
@@ -615,7 +613,7 @@ export default function ResearchDemo() {
                 <div className="mt-5 space-y-3">
 
                   {featureContributions.length === 0 && (
-                    <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">
+                    <div className="rounded-xl bg-threatcast-elevated p-4 text-sm text-threatcast-muted">
                       No feature explanation available.
                     </div>
                   )}
@@ -644,7 +642,7 @@ export default function ResearchDemo() {
                         <div key={item.feature}>
 
                           <div className="mb-1 flex items-center justify-between gap-3">
-                            <div className="text-xs font-semibold text-slate-700">
+                            <div className="text-xs font-semibold text-threatcast-silver">
                               {item.feature}
                             </div>
 
@@ -652,7 +650,7 @@ export default function ResearchDemo() {
                               className={`text-xs font-bold ${
                                 positive
                                   ? 'text-red-600'
-                                  : 'text-emerald-600'
+                                  : 'text-threatcast-green'
                               }`}
                             >
                               {Number(
@@ -667,12 +665,12 @@ export default function ResearchDemo() {
                             </div>
                           </div>
 
-                          <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                          <div className="h-2 overflow-hidden rounded-full bg-threatcast-elevated">
                             <div
                               className={`h-full rounded-full ${
                                 positive
                                   ? 'bg-red-400'
-                                  : 'bg-emerald-400'
+                                  : 'bg-threatcast-green'
                               }`}
                               style={{
                                 width: `${width}%`,
@@ -680,7 +678,7 @@ export default function ResearchDemo() {
                             />
                           </div>
 
-                          <div className="mt-1 flex justify-between text-[11px] text-slate-400">
+                          <div className="mt-1 flex justify-between text-[11px] text-threatcast-muted">
                             <span>
                               {positive
                                 ? 'Increases warning probability'
@@ -705,14 +703,14 @@ export default function ResearchDemo() {
 
               {/* POSITIVE / NEGATIVE */}
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="rounded-2xl border border-tc-border bg-threatcast-card p-6 shadow-sm">
 
                 <div>
-                  <h3 className="font-bold text-slate-900">
+                  <h3 className="font-bold text-threatcast-text">
                     Direction of Evidence
                   </h3>
 
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-threatcast-muted">
                     Which features push the model toward or away from an
                     early warning
                   </p>
@@ -727,7 +725,7 @@ export default function ResearchDemo() {
 
                     <div className="space-y-2">
                       {positiveContributors.length === 0 && (
-                        <div className="rounded-xl bg-slate-50 p-3 text-xs text-slate-500">
+                        <div className="rounded-xl bg-threatcast-elevated p-3 text-xs text-threatcast-muted">
                           No positive contributors.
                         </div>
                       )}
@@ -737,9 +735,9 @@ export default function ResearchDemo() {
                         .map((item) => (
                           <div
                             key={item.feature}
-                            className="rounded-xl bg-red-50 p-3"
+                            className="rounded-xl bg-threatcast-red/10 p-3"
                           >
-                            <div className="text-xs font-semibold text-slate-800">
+                            <div className="text-xs font-semibold text-threatcast-text">
                               {item.feature}
                             </div>
 
@@ -755,13 +753,13 @@ export default function ResearchDemo() {
                   </div>
 
                   <div>
-                    <div className="mb-3 text-xs font-bold uppercase tracking-wide text-emerald-600">
+                    <div className="mb-3 text-xs font-bold uppercase tracking-wide text-threatcast-green">
                       Decreases Warning
                     </div>
 
                     <div className="space-y-2">
                       {negativeContributors.length === 0 && (
-                        <div className="rounded-xl bg-slate-50 p-3 text-xs text-slate-500">
+                        <div className="rounded-xl bg-threatcast-elevated p-3 text-xs text-threatcast-muted">
                           No negative contributors.
                         </div>
                       )}
@@ -771,13 +769,13 @@ export default function ResearchDemo() {
                         .map((item) => (
                           <div
                             key={item.feature}
-                            className="rounded-xl bg-emerald-50 p-3"
+                            className="rounded-xl bg-threatcast-green/10 p-3"
                           >
-                            <div className="text-xs font-semibold text-slate-800">
+                            <div className="text-xs font-semibold text-threatcast-text">
                               {item.feature}
                             </div>
 
-                            <div className="mt-1 text-xs font-bold text-emerald-600">
+                            <div className="mt-1 text-xs font-bold text-threatcast-green">
                               {formatNumber(
                                 item.shap_value,
                                 6
@@ -794,7 +792,7 @@ export default function ResearchDemo() {
 
             </div>
 
-            <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50 p-4 text-xs leading-5 text-blue-800">
+            <div className="mt-4 rounded-xl border border-threatcast-cyan/30 bg-threatcast-cyan/10 p-4 text-xs leading-5 text-threatcast-cyan">
               <strong>Explanation method:</strong>{' '}
               {explainability?.explanation_method ||
                 'LIVE SHAP GradientExplainer'}
@@ -807,14 +805,14 @@ export default function ResearchDemo() {
           {/* TEMPORAL SHAP */}
           {/* -------------------------------------------------------------- */}
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="rounded-2xl border border-tc-border bg-threatcast-card p-6 shadow-sm">
 
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-threatcast-text">
                 Temporal Reasoning
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-threatcast-muted">
                 Post-hoc temporal attribution across the five-state LSTM
                 sequence
               </p>
@@ -825,19 +823,19 @@ export default function ResearchDemo() {
               {temporalContributions.map((item) => (
                 <div
                   key={item.timestep}
-                  className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                  className="rounded-2xl border border-tc-border bg-threatcast-elevated p-4"
                 >
-                  <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                     {item.label}
                   </div>
 
-                  <div className="mt-3 text-2xl font-bold text-slate-900">
+                  <div className="mt-3 text-2xl font-bold text-threatcast-text">
                     {Number(item?.percentage || 0).toFixed(2)}%
                   </div>
 
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
                     <div
-                      className="h-full rounded-full bg-slate-700"
+                      className="h-full rounded-full bg-threatcast-card"
                       style={{
                         width: `${Math.min(
                           100,
@@ -850,7 +848,7 @@ export default function ResearchDemo() {
                     />
                   </div>
 
-                  <div className="mt-2 text-[11px] text-slate-500">
+                  <div className="mt-2 text-[11px] text-threatcast-muted">
                     Absolute SHAP:{' '}
                     {formatNumber(
                       item?.absolute_shap,
@@ -862,7 +860,7 @@ export default function ResearchDemo() {
 
             </div>
 
-            <div className="mt-5 rounded-xl bg-slate-50 p-4 text-xs leading-5 text-slate-600">
+            <div className="mt-5 rounded-xl bg-threatcast-elevated p-4 text-xs leading-5 text-threatcast-silver">
               This temporal view is derived from the absolute SHAP
               contribution of each timestep. It is a post-hoc attribution
               method and should not be described as internal learned
@@ -875,23 +873,23 @@ export default function ResearchDemo() {
           {/* WORLD MODEL */}
           {/* -------------------------------------------------------------- */}
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="rounded-2xl border border-tc-border bg-threatcast-card p-6 shadow-sm">
 
             <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
 
               <div>
-                <h2 className="text-lg font-bold text-slate-900">
+                <h2 className="text-lg font-bold text-threatcast-text">
                   Packet-Level World Model Research
                 </h2>
 
-                <p className="mt-1 max-w-3xl text-sm text-slate-500">
+                <p className="mt-1 max-w-3xl text-sm text-threatcast-muted">
                   Separate research pipeline using packet-graph snapshots
                   and temporal latent dynamics. This pipeline is not the
                   production CTU13 attack-risk classifier.
                 </p>
               </div>
 
-              <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-semibold text-purple-700">
+              <span className="rounded-full bg-threatcast-violet/10 px-3 py-1 text-xs font-semibold text-threatcast-violet">
                 RESEARCH PIPELINE
               </span>
 
@@ -899,61 +897,61 @@ export default function ResearchDemo() {
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-              <div className="rounded-2xl bg-slate-50 p-5">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="rounded-2xl bg-threatcast-elevated p-5">
+                <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   Graph Snapshots
                 </div>
 
-                <div className="mt-2 text-2xl font-bold text-slate-900">
+                <div className="mt-2 text-2xl font-bold text-threatcast-text">
                   {formatNumber(
                     worldModel.graphSnapshots,
                     0
                   )}
                 </div>
 
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-threatcast-muted">
                   30-second packet windows
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-5">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="rounded-2xl bg-threatcast-elevated p-5">
+                <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   Graph Encoder
                 </div>
 
-                <div className="mt-2 text-2xl font-bold text-slate-900">
+                <div className="mt-2 text-2xl font-bold text-threatcast-text">
                   {worldModel.graphEncoder}
                 </div>
 
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-threatcast-muted">
                   Packet interaction representation
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-5">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="rounded-2xl bg-threatcast-elevated p-5">
+                <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   Temporal Model
                 </div>
 
-                <div className="mt-2 text-xl font-bold text-slate-900">
+                <div className="mt-2 text-xl font-bold text-threatcast-text">
                   {worldModel.temporalModel}
                 </div>
 
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-threatcast-muted">
                   Learned latent dynamics
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-5">
-                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <div className="rounded-2xl bg-threatcast-elevated p-5">
+                <div className="text-xs font-semibold uppercase tracking-wide text-threatcast-muted">
                   Forecast Horizon
                 </div>
 
-                <div className="mt-2 text-xl font-bold text-slate-900">
+                <div className="mt-2 text-xl font-bold text-threatcast-text">
                   {worldModel.horizon}
                 </div>
 
-                <div className="mt-1 text-xs text-slate-500">
+                <div className="mt-1 text-xs text-threatcast-muted">
                   Autoregressive latent rollout
                 </div>
               </div>
@@ -961,50 +959,50 @@ export default function ResearchDemo() {
             </div>
 
             <div className="mt-6">
-              <h3 className="mb-3 text-sm font-bold text-slate-900">
+              <h3 className="mb-3 text-sm font-bold text-threatcast-text">
                 K-Step Latent Forecast Improvement
               </h3>
 
               <div className="grid gap-3 md:grid-cols-3">
 
-                <div className="rounded-xl border border-slate-200 p-4">
-                  <div className="text-xs font-semibold text-slate-500">
+                <div className="rounded-xl border border-tc-border p-4">
+                  <div className="text-xs font-semibold text-threatcast-muted">
                     T+1
                   </div>
 
-                  <div className="mt-2 text-xl font-bold text-slate-900">
+                  <div className="mt-2 text-xl font-bold text-threatcast-text">
                     {worldModel.t1}
                   </div>
 
-                  <div className="mt-1 text-xs text-slate-500">
+                  <div className="mt-1 text-xs text-threatcast-muted">
                     vs persistence baseline
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 p-4">
-                  <div className="text-xs font-semibold text-slate-500">
+                <div className="rounded-xl border border-tc-border p-4">
+                  <div className="text-xs font-semibold text-threatcast-muted">
                     T+2
                   </div>
 
-                  <div className="mt-2 text-xl font-bold text-slate-900">
+                  <div className="mt-2 text-xl font-bold text-threatcast-text">
                     {worldModel.t2}
                   </div>
 
-                  <div className="mt-1 text-xs text-slate-500">
+                  <div className="mt-1 text-xs text-threatcast-muted">
                     vs persistence baseline
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-200 p-4">
-                  <div className="text-xs font-semibold text-slate-500">
+                <div className="rounded-xl border border-tc-border p-4">
+                  <div className="text-xs font-semibold text-threatcast-muted">
                     T+3
                   </div>
 
-                  <div className="mt-2 text-xl font-bold text-slate-900">
+                  <div className="mt-2 text-xl font-bold text-threatcast-text">
                     {worldModel.t3}
                   </div>
 
-                  <div className="mt-1 text-xs text-slate-500">
+                  <div className="mt-1 text-xs text-threatcast-muted">
                     vs persistence baseline
                   </div>
                 </div>
@@ -1012,7 +1010,7 @@ export default function ResearchDemo() {
               </div>
             </div>
 
-            <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-5 text-amber-800">
+            <div className="mt-5 rounded-xl border border-threatcast-amber/30 bg-threatcast-amber/10 p-4 text-xs leading-5 text-threatcast-amber">
               <strong>Scope:</strong> these forecasts represent latent
               network-dynamics prediction. They are not trained attack-risk
               probabilities, MITRE ATT&CK stage predictions, or production
@@ -1025,14 +1023,14 @@ export default function ResearchDemo() {
           {/* EVIDENCE / LIMITATIONS */}
           {/* -------------------------------------------------------------- */}
 
-          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="rounded-2xl border border-tc-border bg-threatcast-card p-6 shadow-sm">
 
             <div>
-              <h2 className="text-lg font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-threatcast-text">
                 Evidence & Limitations
               </h2>
 
-              <p className="mt-1 text-sm text-slate-500">
+              <p className="mt-1 text-sm text-threatcast-muted">
                 What this research demo demonstrates and what it does not
                 claim
               </p>
@@ -1041,11 +1039,11 @@ export default function ResearchDemo() {
             <div className="mt-5 grid gap-5 md:grid-cols-2">
 
               <div>
-                <h3 className="mb-3 text-sm font-bold text-emerald-700">
+                <h3 className="mb-3 text-sm font-bold text-threatcast-green">
                   Demonstrated
                 </h3>
 
-                <ul className="space-y-2 text-sm leading-6 text-slate-600">
+                <ul className="space-y-2 text-sm leading-6 text-threatcast-silver">
                   <li>
                     • Real CTU13 network-state features
                   </li>
@@ -1077,11 +1075,11 @@ export default function ResearchDemo() {
               </div>
 
               <div>
-                <h3 className="mb-3 text-sm font-bold text-amber-700">
+                <h3 className="mb-3 text-sm font-bold text-threatcast-amber">
                   Limitations
                 </h3>
 
-                <ul className="space-y-2 text-sm leading-6 text-slate-600">
+                <ul className="space-y-2 text-sm leading-6 text-threatcast-silver">
                   <li>
                     • Live SHAP accepts a 5 × 12 network-state sequence,
                     not arbitrary PCAP uploads.
@@ -1122,14 +1120,14 @@ export default function ResearchDemo() {
           {/* TECHNICAL TRACE */}
           {/* -------------------------------------------------------------- */}
 
-          <section className="rounded-2xl border border-slate-200 bg-slate-900 p-6 text-white shadow-sm">
+          <section className="rounded-2xl border border-tc-border bg-threatcast-deep p-6 text-white shadow-sm">
 
             <div>
               <h2 className="text-lg font-bold">
                 Live Inference Trace
               </h2>
 
-              <p className="mt-1 text-sm text-slate-300">
+              <p className="mt-1 text-sm text-threatcast-silver">
                 Exact pipeline executed for this Research Demo refresh
               </p>
             </div>
@@ -1145,9 +1143,9 @@ export default function ResearchDemo() {
               ].map((step, index) => (
                 <div
                   key={step}
-                  className="rounded-xl border border-slate-700 bg-slate-800 p-4"
+                  className="rounded-xl border border-tc-border bg-threatcast-elevated p-4"
                 >
-                  <div className="text-xs font-bold text-slate-400">
+                  <div className="text-xs font-bold text-threatcast-muted">
                     STEP {index + 1}
                   </div>
 
@@ -1159,11 +1157,11 @@ export default function ResearchDemo() {
 
             </div>
 
-            <div className="mt-5 rounded-xl border border-slate-700 bg-slate-800 p-4 text-xs leading-5 text-slate-300">
+            <div className="mt-5 rounded-xl border border-tc-border bg-threatcast-elevated p-4 text-xs leading-5 text-threatcast-silver">
               The explanation shown above is generated from the same
               five-state sequence used to produce the current CTU13 LSTM
               prediction. The frontend no longer requests the legacy
-              <code className="mx-1 rounded bg-slate-700 px-1.5 py-0.5">
+              <code className="mx-1 rounded bg-threatcast-card px-1.5 py-0.5">
                 INC-8042
               </code>
               precomputed explanation.

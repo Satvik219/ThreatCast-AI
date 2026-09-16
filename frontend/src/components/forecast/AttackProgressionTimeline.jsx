@@ -29,23 +29,23 @@ export default function AttackProgressionTimeline({ forecastData }) {
   );
 
   return (
-    <div className="rounded-2xl bg-white border border-[#ebdcc7] shadow-xs p-6 md:p-7">
+    <div className="rounded-2xl bg-threatcast-card border border-tc-border shadow-xs p-6 md:p-7">
 
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
 
         <div className="flex items-center gap-3">
 
-          <div className="w-9 h-9 rounded-xl bg-[#fef3c7] border border-[#fde68a] flex items-center justify-center text-[#b45309]">
+          <div className="w-9 h-9 rounded-xl bg-threatcast-elevated border border-threatcast-amber flex items-center justify-center text-threatcast-cyan">
             <Brain className="w-4 h-4" />
           </div>
 
           <div>
-            <h3 className="text-sm font-bold text-[#221207]">
+            <h3 className="text-sm font-bold text-threatcast-text">
               CTU13 LSTM Early-Warning Timeline
             </h3>
 
-            <p className="text-xs text-[#7a644c] mt-0.5">
+            <p className="text-xs text-threatcast-muted mt-0.5">
               Five consecutive 30-second network states
             </p>
           </div>
@@ -55,15 +55,15 @@ export default function AttackProgressionTimeline({ forecastData }) {
 
         <div className="flex items-center gap-2">
 
-          <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-md bg-[#f5efe6] border border-[#ded0bc] text-[#78350f]">
+          <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-md bg-threatcast-elevated border border-tc-border text-threatcast-cyan">
             5 × 30 SEC
           </span>
 
           <span
             className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-md border ${
               warning
-                ? 'bg-[#ffedd5] text-[#c2410c] border-[#fdba74]'
-                : 'bg-[#f0fdf4] text-[#4d7c0f] border-[#d9f99d]'
+                ? 'bg-threatcast-elevated text-threatcast-red border-threatcast-red'
+                : 'bg-threatcast-elevated text-threatcast-green border-tc-border'
             }`}
           >
             {warning ? 'EARLY WARNING' : 'NORMAL'}
@@ -77,7 +77,7 @@ export default function AttackProgressionTimeline({ forecastData }) {
       {/* Timeline */}
       <div className="relative">
 
-        <div className="hidden md:block absolute left-[8%] right-[8%] top-7 h-px bg-[#ebdcc7]" />
+        <div className="hidden md:block absolute left-[8%] right-[8%] top-7 h-px bg-[var(--tc-border)]" />
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
 
@@ -94,12 +94,12 @@ export default function AttackProgressionTimeline({ forecastData }) {
                 <div className="flex md:flex-col items-center md:text-center gap-3">
 
                   <div
-                    className={`relative z-10 w-9 h-9 rounded-full flex items-center justify-center border-2 bg-white ${
+                    className={`relative z-10 w-9 h-9 rounded-full flex items-center justify-center border-2 bg-threatcast-card ${
                       index === 4
                         ? warning
-                          ? 'border-[#f97316] text-[#c2410c]'
-                          : 'border-[#84cc16] text-[#4d7c0f]'
-                        : 'border-[#d6c6b2] text-[#7a644c]'
+                          ? 'border-[var(--tc-red)] text-threatcast-red'
+                          : 'border-threatcast-green text-threatcast-green'
+                        : 'border-[var(--tc-silver)] text-threatcast-muted'
                     }`}
                   >
                     {index === 4 ? (
@@ -118,11 +118,11 @@ export default function AttackProgressionTimeline({ forecastData }) {
 
                   <div className="md:mt-2">
 
-                    <p className="text-[10px] font-mono font-bold text-[#78350f]">
+                    <p className="text-[10px] font-mono font-bold text-threatcast-cyan">
                       STATE {stateNumber}
                     </p>
 
-                    <p className="text-[10px] text-[#7a644c] font-mono">
+                    <p className="text-[10px] text-threatcast-muted font-mono">
                       {stateNumber === 5
                         ? 'Latest'
                         : `T-${5 - stateNumber}`}
@@ -144,46 +144,46 @@ export default function AttackProgressionTimeline({ forecastData }) {
       {/* Current assessment */}
       <div className="mt-7 grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <div className="p-4 rounded-xl bg-[#fcfaf7] border border-[#ebdcc7]">
+        <div className="p-4 rounded-xl bg-threatcast-card border border-tc-border">
 
           <div className="flex items-center gap-2 mb-2">
 
-            <Clock className="w-3.5 h-3.5 text-[#b45309]" />
+            <Clock className="w-3.5 h-3.5 text-threatcast-cyan" />
 
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a644c] font-mono">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-threatcast-muted font-mono">
               Temporal Window
             </span>
 
           </div>
 
-          <p className="text-sm font-bold text-[#221207]">
+          <p className="text-sm font-bold text-threatcast-text">
             5 × 30 seconds
           </p>
 
-          <p className="text-[10px] text-[#7a644c] mt-1">
+          <p className="text-[10px] text-threatcast-muted mt-1">
             Five consecutive network states
           </p>
 
         </div>
 
 
-        <div className="p-4 rounded-xl bg-[#fffbeb] border border-[#fde68a]">
+        <div className="p-4 rounded-xl bg-threatcast-elevated border border-threatcast-amber">
 
           <div className="flex items-center gap-2 mb-2">
 
-            <Brain className="w-3.5 h-3.5 text-[#b45309]" />
+            <Brain className="w-3.5 h-3.5 text-threatcast-cyan" />
 
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a644c] font-mono">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-threatcast-muted font-mono">
               Early-Warning Probability
             </span>
 
           </div>
 
-          <p className="text-lg font-black text-[#78350f]">
+          <p className="text-lg font-black text-threatcast-cyan">
             {probabilityText}
           </p>
 
-          <p className="text-[10px] text-[#7a644c] mt-1">
+          <p className="text-[10px] text-threatcast-muted mt-1">
             Deployment threshold: 8%
           </p>
 
@@ -193,20 +193,20 @@ export default function AttackProgressionTimeline({ forecastData }) {
         <div
           className={`p-4 rounded-xl border ${
             warning
-              ? 'bg-[#fff7ed] border-[#fdba74]'
-              : 'bg-[#f0fdf4] border-[#d9f99d]'
+              ? 'bg-threatcast-elevated border-threatcast-red'
+              : 'bg-threatcast-elevated border-tc-border'
           }`}
         >
 
           <div className="flex items-center gap-2 mb-2">
 
             {warning ? (
-              <AlertTriangle className="w-3.5 h-3.5 text-[#c2410c]" />
+              <AlertTriangle className="w-3.5 h-3.5 text-threatcast-red" />
             ) : (
-              <ShieldCheck className="w-3.5 h-3.5 text-[#4d7c0f]" />
+              <ShieldCheck className="w-3.5 h-3.5 text-threatcast-green" />
             )}
 
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#7a644c] font-mono">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-threatcast-muted font-mono">
               Assessment
             </span>
 
@@ -215,8 +215,8 @@ export default function AttackProgressionTimeline({ forecastData }) {
           <p
             className={`text-sm font-black ${
               warning
-                ? 'text-[#c2410c]'
-                : 'text-[#4d7c0f]'
+                ? 'text-threatcast-red'
+                : 'text-threatcast-green'
             }`}
           >
             {warning
@@ -224,7 +224,7 @@ export default function AttackProgressionTimeline({ forecastData }) {
               : 'NORMAL NETWORK STATE'}
           </p>
 
-          <p className="text-[10px] text-[#7a644c] mt-1">
+          <p className="text-[10px] text-threatcast-muted mt-1">
             {warning
               ? 'Probability meets deployment threshold'
               : 'Probability is below deployment threshold'}
@@ -236,10 +236,10 @@ export default function AttackProgressionTimeline({ forecastData }) {
 
 
       {/* Disclaimer */}
-      <div className="mt-5 p-3.5 rounded-xl bg-[#fcfaf7] border border-[#ebdcc7]">
+      <div className="mt-5 p-3.5 rounded-xl bg-threatcast-card border border-tc-border">
 
-        <p className="text-[10px] leading-relaxed text-[#7a644c] font-mono">
-          <strong className="text-[#78350f]">
+        <p className="text-[10px] leading-relaxed text-threatcast-muted font-mono">
+          <strong className="text-threatcast-cyan">
             MODEL SCOPE:
           </strong>{' '}
           The CTU13 LSTM predicts early-warning risk from

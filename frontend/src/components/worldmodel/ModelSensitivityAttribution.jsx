@@ -36,7 +36,7 @@ function Effect({ horizon, data }) {
     : "No sensitivity value";
 
   return (
-    <div className="rounded-lg border border-slate-800 bg-[#11161B] p-4">
+    <div className="rounded-lg border border-slate-800 bg-threatcast-elevated p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm font-semibold text-slate-200">{horizon}</p>
         <span
@@ -86,7 +86,7 @@ export default function ModelSensitivityAttribution({ attribution }) {
 
   if (!attribution.available) {
     return (
-      <div className="rounded-2xl border border-slate-700 bg-[#0D1115] p-6">
+      <div className="rounded-2xl border border-slate-700 bg-threatcast-card p-6">
         <div className="flex items-center justify-between gap-3">
           <div>
             <h3 className="text-lg font-semibold text-slate-100">
@@ -113,7 +113,7 @@ export default function ModelSensitivityAttribution({ attribution }) {
     : [];
 
   return (
-    <div className="rounded-2xl border border-cyan-400/20 bg-[#0D1115] p-6">
+    <div className="rounded-2xl border border-cyan-400/20 bg-threatcast-card p-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-slate-100">
@@ -140,7 +140,7 @@ export default function ModelSensitivityAttribution({ attribution }) {
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <div className="rounded-lg border border-slate-800 bg-[#11161B] p-4">
+        <div className="rounded-lg border border-slate-800 bg-threatcast-elevated p-4">
           <p className="text-[10px] uppercase tracking-wider text-slate-500">
             Flows analyzed
           </p>
@@ -148,7 +148,7 @@ export default function ModelSensitivityAttribution({ attribution }) {
             {attribution.flow_count_analyzed ?? flows.length}
           </p>
         </div>
-        <div className="rounded-lg border border-slate-800 bg-[#11161B] p-4">
+        <div className="rounded-lg border border-slate-800 bg-threatcast-elevated p-4">
           <p className="text-[10px] uppercase tracking-wider text-slate-500">
             T+1 baseline
           </p>
@@ -156,7 +156,7 @@ export default function ModelSensitivityAttribution({ attribution }) {
             {percent(attribution.baseline?.raw_probabilities?.[0])}
           </p>
         </div>
-        <div className="rounded-lg border border-slate-800 bg-[#11161B] p-4">
+        <div className="rounded-lg border border-slate-800 bg-threatcast-elevated p-4">
           <p className="text-[10px] uppercase tracking-wider text-slate-500">
             T+2 baseline
           </p>
@@ -164,7 +164,7 @@ export default function ModelSensitivityAttribution({ attribution }) {
             {percent(attribution.baseline?.raw_probabilities?.[1])}
           </p>
         </div>
-        <div className="rounded-lg border border-slate-800 bg-[#11161B] p-4">
+        <div className="rounded-lg border border-slate-800 bg-threatcast-elevated p-4">
           <p className="text-[10px] uppercase tracking-wider text-slate-500">
             T+3 baseline
           </p>
@@ -178,7 +178,7 @@ export default function ModelSensitivityAttribution({ attribution }) {
         {flows.map((item, index) => (
           <div
             key={`${item?.flow?.src_ip}-${item?.flow?.src_port}-${item?.flow?.dst_ip}-${item?.flow?.dst_port}-${index}`}
-            className="rounded-xl border border-slate-800 bg-[#11161B] p-5"
+            className="rounded-xl border border-slate-800 bg-threatcast-elevated p-5"
           >
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
@@ -209,7 +209,7 @@ export default function ModelSensitivityAttribution({ attribution }) {
         ))}
       </div>
 
-      <div className="mt-6 rounded-lg border border-slate-800 bg-[#11161B] p-4">
+      <div className="mt-6 rounded-lg border border-slate-800 bg-threatcast-elevated p-4">
         <p className="text-xs leading-5 text-slate-500">
           The analysis keeps the trained weights fixed and changes only the
           uploaded traffic by removing one directional flow at a time. It is

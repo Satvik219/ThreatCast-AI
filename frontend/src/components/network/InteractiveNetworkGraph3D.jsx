@@ -27,11 +27,12 @@ function project(point, center, camera) {
   return { x: center.x + point.x * scale, y: center.y + point.y * scale, scale };
 }
 
-export default function InteractiveNetworkGraph3D({ graphData, compact = false }) {
+export default function InteractiveNetworkGraph3D({ graphData, compact = false, selectedNodeId, onSelectNode }) {
   const [rotation, setRotation] = useState({ yaw: 0.55, pitch: -0.18 });
   const [dragging, setDragging] = useState(false);
   const [hovered, setHovered] = useState(null);
   const pointer = useRef({ x: 0, y: 0 });
+  const moved = useRef(false);
   const frame = useRef(null);
   const lastTime = useRef(0);
   const nodes = Array.isArray(graphData?.nodes) ? graphData.nodes : [];
@@ -53,7 +54,7 @@ export default function InteractiveNetworkGraph3D({ graphData, compact = false }
     return () => cancelAnimationFrame(frame.current);
   }, [dragging]);
 
-  if (!graphData) return <div className="flex min-h-[380px] items-center justify-center bg-[#0D1115] text-xs text-[#59636D]">NETWORK GRAPH DATA UNAVAILABLE</div>;
+  if (!graphData) return <div className="flex min-h-[380px] items-center justify-center bg-threatcast-card text-xs text-threatcast-muted">NETWORK GRAPH DATA UNAVAILABLE</div>;
 
   const projected = {};
   nodes.forEach((node) => {
@@ -62,29 +63,30 @@ export default function InteractiveNetworkGraph3D({ graphData, compact = false }
   });
 
   const colors = (node) => node.state === 'compromised' || graphData.attack_path_node_ids?.includes(node.id)
-    ? ['#FF1744', '#18080D']
-    : node.state === 'suspicious' ? ['#FFEB3B', '#1A1706']
-    : node.state === 'target' || graphData.forecasted_path_node_ids?.includes(node.id) ? ['#C084FC', '#150B22']
-    : ['#00FF9C', '#06140F'];
+    ? ['var(--tc-red)', 'var(--tc-card)']
+    : node.state === 'suspicious' ? ['var(--tc-amber)', 'var(--tc-card-elevated)']
+    : node.state === 'target' || graphData.forecasted_path_node_ids?.includes(node.id) ? ['var(--tc-violet)', 'var(--tc-card-elevated)']
+    : ['var(--tc-green)', 'var(--tc-card-elevated)'];
 
-  const onDown = (event) => { setDragging(true); pointer.current = { x: event.clientX, y: event.clientY }; event.currentTarget.setPointerCapture?.(event.pointerId); };
+  const onDown = (event) => { moved.current = false; setDragging(true); pointer.current = { x: event.clientX, y: event.clientY }; event.currentTarget.setPointerCapture?.(event.pointerId); };
   const onMove = (event) => {
     if (!dragging) return;
     const dx = event.clientX - pointer.current.x;
     const dy = event.clientY - pointer.current.y;
+    if (Math.abs(dx) + Math.abs(dy) > 3) moved.current = true;
     pointer.current = { x: event.clientX, y: event.clientY };
     setRotation((current) => ({ yaw: current.yaw + dx * 0.007, pitch: Math.max(-1.25, Math.min(1.25, current.pitch + dy * 0.007)) }));
   };
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-[#030405] shadow-[0_25px_80px_rgba(0,0,0,0.38)]">
+    <div className="relative w-full overflow-hidden rounded-2xl border border-white/[0.08] bg-threatcast-deep shadow-[0_25px_80px_rgba(0,0,0,0.38)]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(0,229,255,0.08),transparent_38%)]" />
-      <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#080A0D]/90 px-4 py-3 font-mono text-[9px] uppercase tracking-wider text-[#B8C0C8] backdrop-blur-xl">
-        <span>Normal <b className="text-[#00FF9C]">●</b> Suspicious <b className="text-[#FFEB3B]">●</b> Compromised <b className="text-[#FF1744]">●</b> Forecast <b className="text-[#C084FC]">●</b></span>
-        <span className="hidden items-center gap-1.5 text-[#59636D] sm:flex"><RotateCw className="h-3 w-3" /> Drag to rotate</span>
+      <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between rounded-xl border border-white/[0.08] bg-threatcast-bg/90 px-4 py-3 font-mono text-[9px] uppercase tracking-wider text-threatcast-silver backdrop-blur-xl">
+        <span>Normal <b className="text-threatcast-green">●</b> Suspicious <b className="text-[var(--tc-amber)]">●</b> Compromised <b className="text-threatcast-red">●</b> Forecast <b className="text-[var(--tc-violet)]">●</b></span>
+        <span className="hidden items-center gap-1.5 text-threatcast-muted sm:flex"><RotateCw className="h-3 w-3" /> Drag to rotate</span>
       </div>
       <svg viewBox={compact ? '0 0 920 500' : '0 0 920 520'} className="relative z-0 h-full w-full cursor-grab touch-none active:cursor-grabbing" style={{ minHeight: compact ? 380 : 560 }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={() => setDragging(false)} onPointerCancel={() => setDragging(false)}>
-        <defs><radialGradient id="graph3d-shading" cx="38%" cy="32%" r="70%"><stop offset="0%" stopColor="#1a2733" stopOpacity=".65" /><stop offset="100%" stopColor="#030405" stopOpacity="0" /></radialGradient><filter id="graph3d-glow"><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
+        <defs><radialGradient id="graph3d-shading" cx="38%" cy="32%" r="70%"><stop offset="0%" stopColor="var(--tc-card-elevated)" stopOpacity=".65" /><stop offset="100%" stopColor="var(--tc-bg-deep)" stopOpacity="0" /></radialGradient><filter id="graph3d-glow"><feGaussianBlur stdDeviation="3" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
         <circle cx={center.x} cy={center.y} r={radius * 1.04} fill="url(#graph3d-shading)" stroke="rgba(184,192,200,.14)" />
         {edges.map((edge, index) => {
           const source = projected[edge.source]; const target = projected[edge.target];
@@ -94,15 +96,15 @@ export default function InteractiveNetworkGraph3D({ graphData, compact = false }
           const lift = radius * .08 + Math.hypot(target.rotated.x - source.rotated.x, target.rotated.y - source.rotated.y, target.rotated.z - source.rotated.z) * .22;
           const control = project({ x: mid.x + mid.x / length * lift, y: mid.y + mid.y / length * lift, z: mid.z + mid.z / length * lift }, center, camera);
           const path = `M ${source.point.x} ${source.point.y} Q ${control.x} ${control.y} ${target.point.x} ${target.point.y}`;
-          const color = edge.is_attack_path ? '#FF1744' : edge.is_forecasted_path ? '#C084FC' : '#59636D';
+          const color = edge.is_attack_path ? 'var(--tc-red)' : edge.is_forecasted_path ? 'var(--tc-violet)' : 'var(--tc-dark-chrome)';
           return <path key={edge.id || index} d={path} fill="none" stroke={color} strokeWidth={edge.is_attack_path ? 2.8 : 1.5} strokeDasharray={edge.is_attack_path || edge.is_forecasted_path ? '8 5' : 'none'} opacity={edge.is_attack_path || edge.is_forecasted_path ? .9 : .4} filter={edge.is_attack_path || edge.is_forecasted_path ? 'url(#graph3d-glow)' : undefined} />;
         })}
         {nodes.slice().sort((a, b) => projected[a.id].rotated.z - projected[b.id].rotated.z).map((node) => {
-          const item = projected[node.id]; const [ring, fill] = colors(node); const Icon = ICONS[node.type] || Server; const active = hovered === node.id;
-          return <g key={node.id} transform={`translate(${item.point.x} ${item.point.y}) scale(${item.point.scale})`} opacity={.45 + ((item.rotated.z + radius) / (2 * radius)) * .55} onPointerEnter={() => setHovered(node.id)} onPointerLeave={() => setHovered(null)}><circle r={active ? 32 : 28} fill={`${ring}35`} filter="url(#graph3d-glow)" /><circle r="25" fill="#030405" stroke="#59636D" /><circle r="21" fill={fill} stroke={ring} strokeWidth={active ? 3 : 1.8} /><foreignObject x="-12" y="-12" width="24" height="24"><div className="flex h-full w-full items-center justify-center" style={{ color: ring }}><Icon className="h-4 w-4" /></div></foreignObject><text x="0" y="38" fill="#E8EDF2" fontSize="10" fontWeight="800" textAnchor="middle" fontFamily="monospace">{String(node.id).toUpperCase()}</text><text x="0" y="51" fill="#718096" fontSize="8" textAnchor="middle" fontFamily="monospace">{node.ip || ''}</text></g>;
+          const item = projected[node.id]; const [ring, fill] = colors(node); const Icon = ICONS[node.type] || Server; const active = hovered === node.id; const selected = selectedNodeId === node.id;
+          return <g key={node.id} transform={`translate(${item.point.x} ${item.point.y}) scale(${item.point.scale})`} opacity={.45 + ((item.rotated.z + radius) / (2 * radius)) * .55} onPointerEnter={() => setHovered(node.id)} onPointerLeave={() => setHovered(null)} onPointerDown={(event) => event.stopPropagation()} onClick={(event) => { event.stopPropagation(); onSelectNode?.(node); }} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onSelectNode?.(node); } }} role="button" tabIndex={0} aria-label={`Inspect ${node.label || node.id}`} className="cursor-pointer"><circle r={selected ? 35 : active ? 32 : 28} fill={`${ring}35`} filter="url(#graph3d-glow)" />{selected && <circle r="31" fill="none" stroke="var(--tc-chrome)" strokeWidth="1.3" strokeDasharray="4 3" />}<circle r="25" fill="var(--tc-bg-deep)" stroke="var(--tc-dark-chrome)" /><circle r="21" fill={fill} stroke={ring} strokeWidth={selected || active ? 3 : 1.8} /><foreignObject x="-12" y="-12" width="24" height="24" className="pointer-events-none"><div className="flex h-full w-full items-center justify-center" style={{ color: ring }}><Icon className="h-4 w-4" /></div></foreignObject><text x="0" y="38" fill="var(--tc-chrome)" fontSize="10" fontWeight="800" textAnchor="middle" fontFamily="monospace">{String(node.id).toUpperCase()}</text><text x="0" y="51" fill="var(--tc-muted)" fontSize="8" textAnchor="middle" fontFamily="monospace">{node.ip || ''}</text></g>;
         })}
       </svg>
-      <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between rounded-xl border border-white/[0.08] bg-[#080A0D]/90 px-4 py-3 font-mono text-[9px] uppercase tracking-wider text-[#718096] backdrop-blur-xl"><span className="flex items-center gap-2"><Activity className="h-3.5 w-3.5 text-[#00E5FF]" /> Live PCAP topology</span><span className="text-[#FFEB3B]">High-risk nodes: {graphData.high_risk_nodes_count || 0}</span></div>
+      <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between rounded-xl border border-white/[0.08] bg-threatcast-bg/90 px-4 py-3 font-mono text-[9px] uppercase tracking-wider text-[var(--tc-muted)] backdrop-blur-xl"><span className="flex items-center gap-2"><Activity className="h-3.5 w-3.5 text-threatcast-cyan" /> Live PCAP topology</span><span className="text-[var(--tc-amber)]">High-risk nodes: {graphData.high_risk_nodes_count || 0}</span></div>
     </div>
   );
 }

@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
+import MotionReveal from "../components/common/MotionReveal";
 
 import {
   ResponsiveContainer,
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -59,21 +60,23 @@ function MetricCard({
   description,
 }) {
   return (
-    <div className="rounded-2xl border border-[#ebdcc7] bg-white p-5 shadow-sm">
+    <MotionReveal hover>
+    <div className="rounded-2xl border border-tc-border bg-threatcast-card p-5 shadow-sm">
 
-      <div className="text-xs font-semibold uppercase tracking-wider text-[#a94d08]">
+      <div className="text-xs font-semibold uppercase tracking-wider text-threatcast-cyan">
         {title}
       </div>
 
-      <div className="mt-3 text-2xl font-bold text-[#301a0a]">
+      <div className="mt-3 text-2xl font-bold text-threatcast-text">
         {value}
       </div>
 
-      <div className="mt-2 text-xs leading-5 text-[#806b58]">
+      <div className="mt-2 text-xs leading-5 text-threatcast-muted">
         {description}
       </div>
 
     </div>
+    </MotionReveal>
   );
 }
 
@@ -83,17 +86,19 @@ function NoticeCard({
   children,
 }) {
   return (
-    <div className="rounded-2xl border border-[#ecd7a5] bg-[#fffaf0] p-5">
+    <MotionReveal hover>
+    <div className="rounded-2xl border border-tc-border bg-threatcast-elevated p-5">
 
-      <div className="text-xs font-bold uppercase tracking-wider text-[#a94d08]">
+      <div className="text-xs font-bold uppercase tracking-wider text-threatcast-cyan">
         {title}
       </div>
 
-      <div className="mt-2 text-sm leading-6 text-[#5f4b39]">
+      <div className="mt-2 text-sm leading-6 text-threatcast-text">
         {children}
       </div>
 
     </div>
+    </MotionReveal>
   );
 }
 
@@ -274,24 +279,24 @@ export default function LiveNetwork() {
   // ==========================================================
 
   return (
-    <div className="min-h-screen bg-[#fcfaf6] px-5 py-6 md:px-8">
+    <div className="min-h-screen bg-threatcast-card px-5 py-6 md:px-8">
 
       {/* ==================================================== */}
       {/* HEADER */}
       {/* ==================================================== */}
 
-      <div className="mb-6 border-b border-[#ebdcc7] pb-5">
+      <div className="mb-6 border-b border-tc-border pb-5">
 
         <div className="flex flex-wrap items-start justify-between gap-4">
 
           <div>
 
-            <h1 className="text-3xl font-bold tracking-tight text-[#301a0a]">
+            <h1 className="text-3xl font-bold tracking-tight text-threatcast-text">
               Network Activity &amp; Telemetry
             </h1>
 
 
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#806b58]">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-threatcast-muted">
               Aggregate network-state activity from the
               CTU13 dataset used by the ThreatCast early-warning
               pipeline.
@@ -300,7 +305,7 @@ export default function LiveNetwork() {
           </div>
 
 
-          <div className="rounded-full border border-[#ecd7a5] bg-[#fff7d9] px-4 py-2 text-xs font-semibold text-[#a94d08]">
+          <div className="rounded-full border border-tc-border bg-threatcast-elevated px-4 py-2 text-xs font-semibold text-threatcast-cyan">
             CTU13 DATA SOURCE
           </div>
 
@@ -351,7 +356,7 @@ export default function LiveNetwork() {
           <button
             type="button"
             onClick={loadActivity}
-            className="mt-4 rounded-lg border border-red-300 bg-white px-4 py-2 text-xs font-semibold text-red-700 hover:bg-red-100"
+            className="mt-4 rounded-lg border border-red-300 bg-threatcast-card px-4 py-2 text-xs font-semibold text-red-700 hover:bg-red-100"
           >
             Retry
           </button>
@@ -425,18 +430,19 @@ export default function LiveNetwork() {
       {/* NETWORK BANDWIDTH */}
       {/* ==================================================== */}
 
-      <div className="mb-6 rounded-2xl border border-[#ebdcc7] bg-white p-5 shadow-sm">
+      <MotionReveal hover className="mb-6">
+      <div className="overflow-hidden rounded-2xl border border-threatcast-cyan/25 bg-[radial-gradient(ellipse_at_top_right,rgba(0,229,255,0.12),transparent_42%),linear-gradient(135deg,var(--tc-card),var(--tc-bg-deep))] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.22)]">
 
         <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
 
           <div>
 
-            <h2 className="text-lg font-bold text-[#301a0a]">
+            <h2 className="text-lg font-bold text-threatcast-text">
               Network Bandwidth Activity
             </h2>
 
 
-            <p className="mt-1 text-sm text-[#806b58]">
+            <p className="mt-1 text-sm text-threatcast-muted">
               Aggregate ingress and egress throughput
               across recent CTU13 network states.
             </p>
@@ -444,7 +450,7 @@ export default function LiveNetwork() {
           </div>
 
 
-          <div className="rounded-lg border border-[#ecd7a5] bg-[#fff7d9] px-3 py-2 text-xs font-semibold text-[#a94d08]">
+          <div className="rounded-lg border border-tc-border bg-threatcast-elevated px-3 py-2 text-xs font-semibold text-threatcast-cyan">
             30-SECOND STATES
           </div>
 
@@ -460,7 +466,7 @@ export default function LiveNetwork() {
               height="100%"
             >
 
-              <LineChart
+              <AreaChart
                 data={trafficData}
                 margin={{
                   top: 10,
@@ -470,8 +476,29 @@ export default function LiveNetwork() {
                 }}
               >
 
+                <defs>
+                  <linearGradient id="liveIngressGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#00e5ff" stopOpacity="0.42" />
+                    <stop offset="100%" stopColor="#00e5ff" stopOpacity="0" />
+                  </linearGradient>
+                  <linearGradient id="liveEgressGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.5" />
+                    <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
+                  </linearGradient>
+                  <linearGradient id="liveFlowGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ffb000" stopOpacity="0.5" />
+                    <stop offset="100%" stopColor="#ffb000" stopOpacity="0" />
+                  </linearGradient>
+                  <filter id="liveBandwidthGlow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                </defs>
+
                 <CartesianGrid
                   strokeDasharray="3 3"
+                  stroke="rgba(184,192,200,0.16)"
+                  vertical={false}
                 />
 
 
@@ -479,14 +506,22 @@ export default function LiveNetwork() {
                   dataKey="time"
                   tick={{
                     fontSize: 11,
+                    fill: "var(--tc-muted)",
+                    fontFamily: "monospace",
                   }}
+                  axisLine={{ stroke: "rgba(184,192,200,0.25)" }}
+                  tickLine={false}
                 />
 
 
                 <YAxis
                   tick={{
                     fontSize: 11,
+                    fill: "var(--tc-muted)",
+                    fontFamily: "monospace",
                   }}
+                  axisLine={false}
+                  tickLine={false}
                   tickFormatter={(value) =>
                     `${value}`
                   }
@@ -500,45 +535,66 @@ export default function LiveNetwork() {
                       3
                     )} Mbps`
                   }
+                  contentStyle={{
+                    backgroundColor: "rgba(9, 16, 28, 0.96)",
+                    border: "1px solid rgba(0, 229, 255, 0.35)",
+                    borderRadius: "12px",
+                    boxShadow: "0 16px 40px rgba(0,0,0,0.36)",
+                    color: "#eef5ff",
+                    fontFamily: "monospace",
+                    fontSize: "11px",
+                  }}
                 />
 
 
-                <Legend />
+                <Legend wrapperStyle={{ color: "var(--tc-silver)", fontSize: "11px", paddingTop: "12px" }} />
 
 
-                <Line
+                <Area
                   type="monotone"
                   dataKey="ingress"
                   name="Ingress Traffic"
-                  strokeWidth={2}
+                  stroke="#00e5ff"
+                  strokeWidth={2.5}
+                  fill="url(#liveIngressGradient)"
+                  filter="url(#liveBandwidthGlow)"
                   dot={false}
+                  activeDot={{ r: 5, fill: "#00e5ff", stroke: "#07101c", strokeWidth: 2 }}
                 />
 
 
-                <Line
+                <Area
                   type="monotone"
                   dataKey="egress"
                   name="Egress Traffic"
-                  strokeWidth={2}
+                  stroke="#a78bfa"
+                  strokeWidth={2.5}
+                  fill="url(#liveEgressGradient)"
+                  filter="url(#liveBandwidthGlow)"
                   dot={false}
+                  activeDot={{ r: 5, fill: "#a78bfa", stroke: "#07101c", strokeWidth: 2 }}
                 />
 
 
-                <Line
+                <Area
                   type="monotone"
                   dataKey="flowChange"
                   name="Flow-Change Indicator"
-                  strokeWidth={2}
+                  stroke="#ffb000"
+                  strokeWidth={2.5}
+                  fill="url(#liveFlowGradient)"
+                  filter="url(#liveBandwidthGlow)"
                   dot={false}
+                  activeDot={{ r: 5, fill: "#ffb000", stroke: "#07101c", strokeWidth: 2 }}
                 />
 
-              </LineChart>
+              </AreaChart>
 
             </ResponsiveContainer>
 
           ) : (
 
-            <div className="flex h-full items-center justify-center text-sm text-[#806b58]">
+            <div className="flex h-full items-center justify-center text-sm text-threatcast-muted">
 
               {loading
                 ? "Loading CTU13 network states..."
@@ -551,22 +607,24 @@ export default function LiveNetwork() {
         </div>
 
       </div>
+      </MotionReveal>
 
 
       {/* ==================================================== */}
       {/* NETWORK ACTIVITY TREND */}
       {/* ==================================================== */}
 
-      <div className="mb-6 rounded-2xl border border-[#ebdcc7] bg-white p-5 shadow-sm">
+      <MotionReveal hover className="mb-6">
+      <div className="overflow-hidden rounded-2xl border border-[rgba(167,139,250,0.28)] bg-[radial-gradient(ellipse_at_top_left,rgba(124,58,237,0.16),transparent_46%),linear-gradient(135deg,var(--tc-card),var(--tc-bg-deep))] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.22)]">
 
         <div className="mb-5">
 
-          <h2 className="text-lg font-bold text-[#301a0a]">
+          <h2 className="text-lg font-bold text-threatcast-text">
             Network Activity Trend
           </h2>
 
 
-          <p className="mt-1 text-sm text-[#806b58]">
+          <p className="mt-1 text-sm text-threatcast-muted">
             Aggregate network activity across recent
             CTU13 observation windows.
           </p>
@@ -583,7 +641,7 @@ export default function LiveNetwork() {
               height="100%"
             >
 
-              <LineChart
+              <AreaChart
                 data={activityData}
                 margin={{
                   top: 10,
@@ -593,8 +651,22 @@ export default function LiveNetwork() {
                 }}
               >
 
+                <defs>
+                  <linearGradient id="liveActivityGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#a78bfa" stopOpacity="0.72" />
+                    <stop offset="52%" stopColor="#00e5ff" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#00e5ff" stopOpacity="0" />
+                  </linearGradient>
+                  <filter id="liveActivityGlow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                </defs>
+
                 <CartesianGrid
                   strokeDasharray="3 3"
+                  stroke="rgba(184,192,200,0.16)"
+                  vertical={false}
                 />
 
 
@@ -602,7 +674,11 @@ export default function LiveNetwork() {
                   dataKey="time"
                   tick={{
                     fontSize: 11,
+                    fill: "var(--tc-muted)",
+                    fontFamily: "monospace",
                   }}
+                  axisLine={{ stroke: "rgba(184,192,200,0.25)" }}
+                  tickLine={false}
                 />
 
 
@@ -610,31 +686,50 @@ export default function LiveNetwork() {
                   domain={[0, 100]}
                   tick={{
                     fontSize: 11,
+                    fill: "var(--tc-muted)",
+                    fontFamily: "monospace",
+                  }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+
+
+                <Tooltip
+                  formatter={(value) => `${formatNumber(value, 1)} / 100`}
+                  contentStyle={{
+                    backgroundColor: "rgba(9, 16, 28, 0.96)",
+                    border: "1px solid rgba(167, 139, 250, 0.4)",
+                    borderRadius: "12px",
+                    boxShadow: "0 16px 40px rgba(0,0,0,0.36)",
+                    color: "#eef5ff",
+                    fontFamily: "monospace",
+                    fontSize: "11px",
                   }}
                 />
 
 
-                <Tooltip />
+                <Legend wrapperStyle={{ color: "var(--tc-silver)", fontSize: "11px", paddingTop: "12px" }} />
 
 
-                <Legend />
-
-
-                <Line
+                <Area
                   type="monotone"
                   dataKey="activityScore"
                   name="Network Activity Indicator"
-                  strokeWidth={2}
+                  stroke="#a78bfa"
+                  strokeWidth={3}
+                  fill="url(#liveActivityGradient)"
+                  filter="url(#liveActivityGlow)"
                   dot={false}
+                  activeDot={{ r: 6, fill: "#00e5ff", stroke: "#07101c", strokeWidth: 2 }}
                 />
 
-              </LineChart>
+              </AreaChart>
 
             </ResponsiveContainer>
 
           ) : (
 
-            <div className="flex h-full items-center justify-center text-sm text-[#806b58]">
+            <div className="flex h-full items-center justify-center text-sm text-threatcast-muted">
 
               {loading
                 ? "Loading activity trend..."
@@ -647,6 +742,7 @@ export default function LiveNetwork() {
         </div>
 
       </div>
+      </MotionReveal>
 
 
       {/* ==================================================== */}
@@ -681,23 +777,23 @@ export default function LiveNetwork() {
       {/* PIPELINE STATUS */}
       {/* ==================================================== */}
 
-      <div className="rounded-2xl border border-[#ebdcc7] bg-white p-5 shadow-sm">
+      <div className="rounded-2xl border border-tc-border bg-threatcast-card p-5 shadow-sm">
 
         <div className="flex flex-wrap items-center justify-between gap-5">
 
           <div>
 
-            <div className="text-xs font-bold uppercase tracking-wider text-[#a94d08]">
+            <div className="text-xs font-bold uppercase tracking-wider text-threatcast-cyan">
               Data status
             </div>
 
 
-            <div className="mt-2 text-sm font-semibold text-[#301a0a]">
+            <div className="mt-2 text-sm font-semibold text-threatcast-text">
               CTU13 aggregate network-state pipeline
             </div>
 
 
-            <div className="mt-1 text-xs leading-5 text-[#806b58]">
+            <div className="mt-1 text-xs leading-5 text-threatcast-muted">
               The page refreshes the network activity endpoint
               every 30 seconds while open.
             </div>
@@ -707,12 +803,12 @@ export default function LiveNetwork() {
 
           <div className="text-right">
 
-            <div className="text-xs text-[#806b58]">
+            <div className="text-xs text-threatcast-muted">
               Last dataset timestamp
             </div>
 
 
-            <div className="mt-1 text-sm font-semibold text-[#5f4b39]">
+            <div className="mt-1 text-sm font-semibold text-threatcast-text">
               {formatTime(
                 activity?.last_updated
               )}

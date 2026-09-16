@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import MotionReveal from "../components/common/MotionReveal";
 import { usePcapAnalysis } from "../context/PcapAnalysisContext";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
@@ -18,17 +19,17 @@ function formatPercent(value) {
 
 function Card({ title, children, className = "" }) {
   return (
-    <div
-      className={`rounded-2xl border border-[#ebdcc7] bg-white p-5 shadow-sm ${className}`}
-    >
-      <div className="text-xs font-bold uppercase tracking-wider text-[#a94d08]">
+    <MotionReveal className={className} hover>
+      <div className="rounded-2xl border border-tc-border bg-threatcast-card p-5 shadow-sm">
+      <div className="text-xs font-bold uppercase tracking-wider text-threatcast-cyan">
         {title}
       </div>
 
       <div className="mt-3">
         {children}
       </div>
-    </div>
+      </div>
+    </MotionReveal>
   );
 }
 
@@ -127,7 +128,7 @@ export default function AttackForecast() {
   if (loading && !forecast) {
 
     return (
-      <div className="p-8 text-sm text-[#806b58]">
+      <div className="p-8 text-sm text-threatcast-muted">
         Loading CTU13 LSTM early-warning forecast...
       </div>
     );
@@ -152,7 +153,7 @@ export default function AttackForecast() {
 
           <button
             onClick={loadForecast}
-            className="mt-4 rounded-lg border border-red-300 bg-white px-4 py-2 text-xs font-semibold text-red-700"
+            className="mt-4 rounded-lg border border-red-300 bg-threatcast-card px-4 py-2 text-xs font-semibold text-red-700"
           >
             Retry
           </button>
@@ -187,21 +188,21 @@ export default function AttackForecast() {
 
 
   return (
-    <div className="min-h-screen bg-[#fcfaf6] px-5 py-6 md:px-8">
+    <div className="min-h-screen bg-threatcast-card px-5 py-6 md:px-8">
 
       {/* HEADER */}
 
-      <div className="mb-6 border-b border-[#ebdcc7] pb-5">
+      <div className="mb-6 border-b border-tc-border pb-5">
 
         <div className="flex flex-wrap items-start justify-between gap-4">
 
           <div>
 
-            <h1 className="text-3xl font-bold tracking-tight text-[#301a0a]">
+            <h1 className="text-3xl font-bold tracking-tight text-threatcast-text">
               {fileName ? "Uploaded PCAP Early-Warning Forecast" : "CTU13 LSTM Early-Warning Forecast"}
             </h1>
 
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-[#806b58]">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-threatcast-muted">
               Early-warning risk assessment from five consecutive
               30-second CTU13 network-state observations.
             </p>
@@ -209,7 +210,7 @@ export default function AttackForecast() {
           </div>
 
 
-          <div className="rounded-full border border-[#ecd7a5] bg-[#fff7d9] px-4 py-2 text-xs font-semibold text-[#a94d08]">
+          <div className="rounded-full border border-tc-border bg-threatcast-elevated px-4 py-2 text-xs font-semibold text-threatcast-cyan">
             CTU13 LSTM
           </div>
 
@@ -222,7 +223,7 @@ export default function AttackForecast() {
 
       <Card title="Model scope" className="mb-6">
 
-        <p className="text-sm leading-6 text-[#5f4b39]">
+        <p className="text-sm leading-6 text-threatcast-text">
 
           The deployed model performs binary early-warning
           prediction. It does not independently predict
@@ -240,12 +241,12 @@ export default function AttackForecast() {
 
         <Card title="Current network state">
 
-          <div className="text-2xl font-bold text-[#301a0a]">
+          <div className="text-2xl font-bold text-threatcast-text">
             {current.stage_name ||
               "Normal Network State"}
           </div>
 
-          <div className="mt-3 text-sm text-[#806b58]">
+          <div className="mt-3 text-sm text-threatcast-muted">
             {scenario}
           </div>
 
@@ -257,14 +258,14 @@ export default function AttackForecast() {
           <div
             className={`text-3xl font-bold ${
               warning
-                ? "text-[#b45309]"
-                : "text-[#4d7c0f]"
+                ? "text-threatcast-cyan"
+                : "text-threatcast-green"
             }`}
           >
             {formatPercent(probability)}
           </div>
 
-          <div className="mt-2 text-xs text-[#806b58]">
+          <div className="mt-2 text-xs text-threatcast-muted">
             Deployment threshold: 8.00%
           </div>
 
@@ -276,8 +277,8 @@ export default function AttackForecast() {
           <div
             className={`text-2xl font-bold ${
               warning
-                ? "text-[#b45309]"
-                : "text-[#4d7c0f]"
+                ? "text-threatcast-cyan"
+                : "text-threatcast-green"
             }`}
           >
             {warning
@@ -285,7 +286,7 @@ export default function AttackForecast() {
               : "NORMAL"}
           </div>
 
-          <div className="mt-2 text-sm text-[#806b58]">
+          <div className="mt-2 text-sm text-threatcast-muted">
             {warning
               ? "Probability is at or above the deployed threshold."
               : "Probability is below the deployed threshold."}
@@ -304,11 +305,11 @@ export default function AttackForecast() {
 
           <div>
 
-            <div className="text-2xl font-bold text-[#301a0a]">
+            <div className="text-2xl font-bold text-threatcast-text">
               5
             </div>
 
-            <div className="text-xs text-[#806b58]">
+            <div className="text-xs text-threatcast-muted">
               consecutive network states
             </div>
 
@@ -317,11 +318,11 @@ export default function AttackForecast() {
 
           <div>
 
-            <div className="text-2xl font-bold text-[#301a0a]">
+            <div className="text-2xl font-bold text-threatcast-text">
               30s
             </div>
 
-            <div className="text-xs text-[#806b58]">
+            <div className="text-xs text-threatcast-muted">
               duration of each state
             </div>
 
@@ -330,11 +331,11 @@ export default function AttackForecast() {
 
           <div>
 
-            <div className="text-2xl font-bold text-[#301a0a]">
+            <div className="text-2xl font-bold text-threatcast-text">
               12
             </div>
 
-            <div className="text-xs text-[#806b58]">
+            <div className="text-xs text-threatcast-muted">
               engineered input features
             </div>
 
@@ -353,11 +354,11 @@ export default function AttackForecast() {
 
           <div>
 
-            <div className="text-xs uppercase tracking-wider text-[#a94d08]">
+            <div className="text-xs uppercase tracking-wider text-threatcast-cyan">
               Model
             </div>
 
-            <div className="mt-1 text-sm font-semibold text-[#301a0a]">
+            <div className="mt-1 text-sm font-semibold text-threatcast-text">
               CTU13 LSTM Early Warning
             </div>
 
@@ -366,11 +367,11 @@ export default function AttackForecast() {
 
           <div>
 
-            <div className="text-xs uppercase tracking-wider text-[#a94d08]">
+            <div className="text-xs uppercase tracking-wider text-threatcast-cyan">
               Architecture
             </div>
 
-            <div className="mt-1 text-sm font-semibold text-[#301a0a]">
+            <div className="mt-1 text-sm font-semibold text-threatcast-text">
               LSTM 64 → Dropout → Dense 32 → Sigmoid
             </div>
 
@@ -379,11 +380,11 @@ export default function AttackForecast() {
 
           <div>
 
-            <div className="text-xs uppercase tracking-wider text-[#a94d08]">
+            <div className="text-xs uppercase tracking-wider text-threatcast-cyan">
               Output
             </div>
 
-            <div className="mt-1 text-sm font-semibold text-[#301a0a]">
+            <div className="mt-1 text-sm font-semibold text-threatcast-text">
               Binary early-warning probability
             </div>
 
@@ -392,11 +393,11 @@ export default function AttackForecast() {
 
           <div>
 
-            <div className="text-xs uppercase tracking-wider text-[#a94d08]">
+            <div className="text-xs uppercase tracking-wider text-threatcast-cyan">
               Threshold
             </div>
 
-            <div className="mt-1 text-sm font-semibold text-[#301a0a]">
+            <div className="mt-1 text-sm font-semibold text-threatcast-text">
               0.08
             </div>
 
@@ -415,34 +416,34 @@ export default function AttackForecast() {
 
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
 
-            <div className="rounded-xl border border-[#ecd7a5] bg-[#fffaf0] p-4">
+            <div className="rounded-xl border border-tc-border bg-threatcast-elevated p-4">
 
-              <div className="text-xs font-bold uppercase text-[#a94d08]">
+              <div className="text-xs font-bold uppercase text-threatcast-cyan">
                 CTU13 LSTM
               </div>
 
-              <div className="mt-2 text-sm font-semibold text-[#301a0a]">
+              <div className="mt-2 text-sm font-semibold text-threatcast-text">
                 Binary early-warning prediction
               </div>
 
-              <div className="mt-2 text-xs leading-5 text-[#806b58]">
+              <div className="mt-2 text-xs leading-5 text-threatcast-muted">
                 {comparison?.lstm_a?.feature_type}
               </div>
 
             </div>
 
 
-            <div className="rounded-xl border border-[#ebdcc7] bg-[#fcfaf6] p-4">
+            <div className="rounded-xl border border-tc-border bg-threatcast-card p-4">
 
-              <div className="text-xs font-bold uppercase text-[#a94d08]">
+              <div className="text-xs font-bold uppercase text-threatcast-cyan">
                 DAPT2020 LSTM
               </div>
 
-              <div className="mt-2 text-sm font-semibold text-[#301a0a]">
+              <div className="mt-2 text-sm font-semibold text-threatcast-text">
                 Separate attack-stage research model
               </div>
 
-              <div className="mt-2 text-xs leading-5 text-[#806b58]">
+              <div className="mt-2 text-xs leading-5 text-threatcast-muted">
                 This model is not the deployed CTU13
                 early-warning engine.
               </div>
@@ -452,7 +453,7 @@ export default function AttackForecast() {
           </div>
 
 
-          <div className="mt-5 rounded-xl border border-[#ebdcc7] bg-white p-4 text-xs leading-5 text-[#806b58]">
+          <div className="mt-5 rounded-xl border border-tc-border bg-threatcast-card p-4 text-xs leading-5 text-threatcast-muted">
             The two research models use different datasets
             and prediction tasks. Their confidence values
             should not be interpreted as directly comparable
@@ -466,13 +467,13 @@ export default function AttackForecast() {
 
       {/* FOOTER */}
 
-      <div className="mt-6 rounded-2xl border border-[#ebdcc7] bg-white p-5">
+      <div className="mt-6 rounded-2xl border border-tc-border bg-threatcast-card p-5">
 
-        <div className="text-xs font-bold uppercase tracking-wider text-[#a94d08]">
+        <div className="text-xs font-bold uppercase tracking-wider text-threatcast-cyan">
           Forecast interpretation
         </div>
 
-        <p className="mt-2 text-sm leading-6 text-[#5f4b39]">
+        <p className="mt-2 text-sm leading-6 text-threatcast-text">
 
           This page reports the actual CTU13 LSTM early-warning
           output. A NORMAL result means the current probability

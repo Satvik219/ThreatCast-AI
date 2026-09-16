@@ -7,6 +7,7 @@ import ErrorState from '../components/common/ErrorState';
 import InteractiveNetworkGraph3D from '../components/network/InteractiveNetworkGraph3D';
 import NodeDetailsDrawer from '../components/network/NodeDetailsDrawer';
 import NetworkFilters from '../components/network/NetworkFilters';
+import MotionReveal from '../components/common/MotionReveal';
 import { useNetworkGraph } from '../hooks/useNetworkGraph';
 
 export default function NetworkGraph() {
@@ -94,29 +95,22 @@ export default function NetworkGraph() {
     <div className="space-y-6 relative z-10">
       <PageHeader
         title="Network State & Topology"
-        subtitle="Explore network entities and their current telemetry. CTU13 LSTM provides early-warning risk; it does not identify individual nodes."
+        subtitle="Select a node to inspect its current network telemetry."
         badge="Network Telemetry"
       />
 
-      <NetworkFilters
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        selectedType={selectedType}
-        onTypeChange={setSelectedType}
-        selectedRisk={selectedRisk}
-        onRiskChange={setSelectedRisk}
-      />
+      <MotionReveal hover>
+        <NetworkFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedType={selectedType}
+          onTypeChange={setSelectedType}
+          selectedRisk={selectedRisk}
+          onRiskChange={setSelectedRisk}
+        />
+      </MotionReveal>
 
-      <div className="rounded-2xl border border-[#ebdcc7] bg-[#fffbf7] px-5 py-4">
-        <p className="text-xs font-mono text-[#6b5845] leading-relaxed">
-          <strong className="text-[#b45309]">Model scope:</strong>{' '}
-          The CTU13 LSTM analyzes temporal network-state features for
-          early-warning prediction. Node-level attribution and graph-based
-          prediction are not produced by this model.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <MotionReveal className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <InteractiveNetworkGraph3D
             graphData={filteredGraph}
@@ -134,12 +128,12 @@ export default function NetworkGraph() {
               onClose={() => setSelectedNode(null)}
             />
           ) : (
-            <div className="p-12 text-center bg-white rounded-2xl border border-[#ebdcc7] text-[#7a644c] text-xs font-mono">
+            <div className="p-12 text-center bg-threatcast-card rounded-2xl border border-tc-border text-threatcast-muted text-xs font-mono">
               Select a network node to inspect available telemetry.
             </div>
           )}
         </div>
-      </div>
+      </MotionReveal>
     </div>
   );
 }

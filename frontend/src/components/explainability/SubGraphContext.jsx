@@ -10,27 +10,27 @@ export default function SubGraphContext({
   const hasEdges = subgraphEdges.length > 0;
 
   return (
-    <div className="p-6 md:p-7 rounded-2xl bg-white border border-[#ebdcc7] shadow-xs space-y-5">
+    <div className="p-6 md:p-7 rounded-2xl bg-threatcast-card border border-tc-border shadow-xs space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-bold text-[#221207] flex items-center gap-2">
-            <Network className="w-4 h-4 text-[#b45309]" />
+          <h3 className="text-base font-bold text-threatcast-text flex items-center gap-2">
+            <Network className="w-4 h-4 text-threatcast-cyan" />
             Network Context
           </h3>
 
-          <p className="text-xs text-[#7a644c] mt-0.5">
+          <p className="text-xs text-threatcast-muted mt-0.5">
             Supporting network information returned by the current API.
           </p>
         </div>
 
-        <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-[#f5efe6] text-[#7a644c] border border-[#ded0bc] font-bold">
+        <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-threatcast-elevated text-threatcast-muted border border-tc-border font-bold">
           Context
         </span>
       </div>
 
       {hasNodes ? (
         <div className="space-y-2">
-          <span className="text-xs font-mono font-bold uppercase text-[#7a644c] block">
+          <span className="text-xs font-mono font-bold uppercase text-threatcast-muted block">
             Network Entities
           </span>
 
@@ -38,17 +38,17 @@ export default function SubGraphContext({
             {subgraphNodes.map((node, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#fcfaf7] border border-[#ebdcc7] text-xs font-mono font-bold text-[#544230]"
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-threatcast-card border border-tc-border text-xs font-mono font-bold text-threatcast-silver"
               >
-                <span className="w-2 h-2 rounded-full bg-[#d97706]" />
+                <span className="w-2 h-2 rounded-full bg-threatcast-cyan" />
                 {node}
               </span>
             ))}
           </div>
         </div>
       ) : (
-        <div className="p-4 rounded-xl bg-[#fcfaf7] border border-[#ebdcc7]">
-          <p className="text-xs text-[#7a644c] font-mono">
+        <div className="p-4 rounded-xl bg-threatcast-card border border-tc-border">
+          <p className="text-xs text-threatcast-muted font-mono">
             No node-level attribution is available from the CTU13 LSTM
             early-warning model.
           </p>
@@ -57,7 +57,7 @@ export default function SubGraphContext({
 
       {hasEdges && (
         <div className="space-y-2">
-          <span className="text-xs font-mono font-bold uppercase text-[#7a644c] block">
+          <span className="text-xs font-mono font-bold uppercase text-threatcast-muted block">
             Network Relationships
           </span>
 
@@ -65,9 +65,9 @@ export default function SubGraphContext({
             {subgraphEdges.map((edge, idx) => (
               <div
                 key={idx}
-                className="p-3 rounded-xl bg-[#fcfaf7] text-[#78350f] font-mono text-xs border border-[#ebdcc7] flex items-center gap-2"
+                className="p-3 rounded-xl bg-threatcast-card text-threatcast-cyan font-mono text-xs border border-tc-border flex items-center gap-2"
               >
-                <span className="text-[#998165] font-bold">
+                <span className="text-threatcast-muted font-bold">
                   #{idx + 1}
                 </span>
                 <span>{edge}</span>
@@ -77,11 +77,11 @@ export default function SubGraphContext({
         </div>
       )}
 
-      <div className="p-4 rounded-xl bg-[#fffbeb] border border-[#fde68a] text-xs text-[#78350f] font-mono leading-relaxed flex gap-2">
-        <Info className="w-4 h-4 shrink-0 text-[#b45309] mt-0.5" />
+      <div className="p-4 rounded-xl bg-threatcast-elevated border border-threatcast-amber text-xs text-threatcast-cyan font-mono leading-relaxed flex gap-2">
+        <Info className="w-4 h-4 shrink-0 text-threatcast-cyan mt-0.5" />
 
         <div>
-          <strong className="text-[#b45309]">
+          <strong className="text-threatcast-cyan">
             Explainability scope:
           </strong>{' '}
           The deployed CTU13 LSTM produces an early-warning probability from
@@ -92,7 +92,7 @@ export default function SubGraphContext({
       </div>
 
       {fastrpNote && (
-        <div className="text-[11px] text-[#8b7355] font-mono">
+        <div className="text-[11px] text-[var(--tc-muted)] font-mono">
           Legacy graph metadata is retained only for API compatibility and is
           not used by the CTU13 LSTM prediction.
         </div>

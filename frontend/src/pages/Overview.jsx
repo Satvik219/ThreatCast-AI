@@ -185,24 +185,24 @@ export default function Overview() {
         />
 
 
-        <div className="p-6 md:p-7 rounded-2xl bg-white border border-[#ebdcc7] shadow-xs flex flex-col justify-between space-y-4">
+        <div className="p-6 md:p-7 rounded-2xl bg-threatcast-card border border-tc-border shadow-xs flex flex-col justify-between space-y-4">
 
           <div className="flex items-center justify-between">
 
             <div>
 
-              <h3 className="text-sm font-bold text-[#221207] tracking-tight">
+              <h3 className="text-sm font-bold text-threatcast-text tracking-tight">
                 Network Entity Topology
               </h3>
 
-              <p className="text-xs text-[#7a644c]">
+              <p className="text-xs text-threatcast-muted">
                 Network visualization from the current application data source.
               </p>
 
             </div>
 
 
-            <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-[#f5efe6] text-[#78350f] border border-[#ded0bc] font-bold">
+            <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-threatcast-elevated text-threatcast-cyan border border-tc-border font-bold">
               Network View
             </span>
 

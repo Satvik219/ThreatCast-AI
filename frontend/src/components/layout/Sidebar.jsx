@@ -9,10 +9,10 @@ import {
   GitCompare,
   ShieldAlert,
   Sparkles,
-  Shield,
   Settings,
   X,
 } from "lucide-react";
+import { GiShieldBash } from 'react-icons/gi';
 
 import { NAV_ITEMS } from "../../utils/constants";
 
@@ -50,7 +50,7 @@ export default function Sidebar({ isOpen, onClose }) {
         className={`
           fixed top-0 left-0 bottom-0 z-50 w-64
           flex flex-col
-          bg-[#171310] text-[#c9beae]
+          bg-threatcast-card text-threatcast-silver
           border-r border-white/[0.06]
           transition-transform duration-200 ease-out
           lg:translate-x-0
@@ -61,15 +61,15 @@ export default function Sidebar({ isOpen, onClose }) {
         <div className="px-5 py-5 border-b border-white/[0.06]">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-[#b45309] flex items-center justify-center shrink-0">
-                <Shield className="w-4.5 h-4.5 text-white" />
+              <div className="w-9 h-9 rounded-lg bg-threatcast-cyan flex items-center justify-center shrink-0">
+                <GiShieldBash className="h-5 w-5 text-black" aria-hidden="true" />
               </div>
 
               <div>
-                <span className="font-bold tracking-wide text-sm text-white">
+                <span className="rounded-md bg-threatcast-cyan px-2 py-1 font-bold tracking-wide text-sm text-threatcast-deep">
                   ThreatCast AI
                 </span>
-                <p className="mt-0.5 text-[10px] tracking-wide text-[#8a7d6c] uppercase font-medium">
+                <p className="mt-0.5 text-[10px] tracking-wide text-threatcast-muted uppercase font-medium">
                   Early Warning Engine
                 </p>
               </div>
@@ -78,7 +78,7 @@ export default function Sidebar({ isOpen, onClose }) {
             {/* MOBILE CLOSE */}
             <button
               onClick={onClose}
-              className="lg:hidden p-1.5 rounded-lg text-[#8a7d6c] hover:text-white hover:bg-white/[0.06] transition-colors"
+              className="lg:hidden p-1.5 rounded-lg text-threatcast-muted hover:text-white hover:bg-threatcast-elevated/70 transition-colors"
               aria-label="Close navigation"
               type="button"
             >
@@ -89,7 +89,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
         {/* NAVIGATION */}
         <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-          <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-[#6b5f50]">
+          <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-threatcast-muted">
             Navigation
           </div>
 
@@ -105,27 +105,27 @@ export default function Sidebar({ isOpen, onClose }) {
                 className={({ isActive }) =>
                   `relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 ${
                     isActive
-                      ? "bg-white/[0.08] text-white"
-                      : "text-[#a99d8c] hover:text-white hover:bg-white/[0.04]"
+                      ? "bg-threatcast-elevated/70 text-white"
+                      : "text-threatcast-muted hover:text-white hover:bg-threatcast-elevated/70"
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
                     {isActive && (
-                      <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-[#d97706]" />
+                      <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-threatcast-cyan" />
                     )}
 
                     <Icon
                       className={`w-4 h-4 shrink-0 ${
-                        isActive ? "text-[#d97706]" : "text-[#8a7d6c]"
+                        isActive ? "text-threatcast-cyan" : "text-threatcast-muted"
                       }`}
                     />
 
                     <span className="flex-1 truncate">{item.label}</span>
 
                     {tag && (
-                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-white/[0.06] text-[#a99d8c]">
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-threatcast-elevated/70 text-threatcast-muted">
                         {tag}
                       </span>
                     )}
@@ -136,38 +136,11 @@ export default function Sidebar({ isOpen, onClose }) {
           })}
         </nav>
 
-        {/* SYSTEM STATUS */}
-        <div className="p-4 border-t border-white/[0.06] space-y-3">
-          <div className="rounded-lg bg-white/[0.04] p-3 space-y-2.5">
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="flex items-center gap-2 text-[#8a7d6c]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#65a30d]" />
-                CTU13 LSTM
-              </span>
-              <span className="font-medium text-[#65a30d]">Active</span>
-            </div>
-
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="flex items-center gap-2 text-[#8a7d6c]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#d97706]" />
-                API
-              </span>
-              <span className="text-[#c9beae]">FastAPI :8000</span>
-            </div>
-
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="flex items-center gap-2 text-[#8a7d6c]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#6b5f50]" />
-                Input window
-              </span>
-              <span className="text-[#c9beae]">5 × 30s</span>
-            </div>
-          </div>
-
+        <div className="p-4 border-t border-white/[0.06]">
           {/* USER */}
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-[#3e3226] flex items-center justify-center text-white text-[10px] font-bold shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-threatcast-elevated flex items-center justify-center text-white text-[10px] font-bold shrink-0">
                 TC
               </div>
 
@@ -175,14 +148,14 @@ export default function Sidebar({ isOpen, onClose }) {
                 <p className="text-[11px] font-semibold text-white leading-tight">
                   Security Analyst
                 </p>
-                <p className="mt-0.5 text-[10px] text-[#6b5f50]">
+                <p className="mt-0.5 text-[10px] text-threatcast-muted">
                   SOC Console
                 </p>
               </div>
             </div>
 
             <button
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-[#8a7d6c] hover:text-white hover:bg-white/[0.06] transition-colors"
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-threatcast-muted hover:text-white hover:bg-threatcast-elevated/70 transition-colors"
               aria-label="Settings"
               type="button"
             >

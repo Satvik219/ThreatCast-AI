@@ -71,53 +71,53 @@ export default function Incidents() {
 
       {/* Status KPI Summary Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 font-mono text-xs">
-        <div className="p-4 rounded-2xl border border-[#ebdcc7] bg-white shadow-xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#b45309]">
+        <div className="p-4 rounded-2xl border border-tc-border bg-threatcast-card shadow-xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-threatcast-cyan">
             Persistent Incident Records
           </span>
-          <div className="mt-2 text-2xl font-bold text-[#221207]">
+          <div className="mt-2 text-2xl font-bold text-threatcast-text">
             {totalCount} Records
           </div>
-          <p className="mt-1 text-[11px] text-[#7a644c]">
+          <p className="mt-1 text-[11px] text-threatcast-muted">
             Neo4j Incident nodes in database
           </p>
         </div>
 
-        <div className="p-4 rounded-2xl border border-[#ebdcc7] bg-white shadow-xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#b45309]">
+        <div className="p-4 rounded-2xl border border-tc-border bg-threatcast-card shadow-xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-threatcast-cyan">
             Active Investigations
           </span>
-          <div className="mt-2 text-2xl font-bold text-[#221207]">
+          <div className="mt-2 text-2xl font-bold text-threatcast-text">
             0 Active
           </div>
-          <p className="mt-1 text-[11px] text-[#7a644c]">
+          <p className="mt-1 text-[11px] text-threatcast-muted">
             Zero ongoing manual investigations
           </p>
         </div>
 
-        <div className="p-4 rounded-2xl border border-[#ebdcc7] bg-white shadow-xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#b45309]">
+        <div className="p-4 rounded-2xl border border-tc-border bg-threatcast-card shadow-xs">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-threatcast-cyan">
             Containment Executions
           </span>
-          <div className="mt-2 text-2xl font-bold text-[#221207]">
+          <div className="mt-2 text-2xl font-bold text-threatcast-text">
             0 Playbooks
           </div>
-          <p className="mt-1 text-[11px] text-[#7a644c]">
+          <p className="mt-1 text-[11px] text-threatcast-muted">
             No automated playbooks executed
           </p>
         </div>
       </div>
 
       {/* Filter Row */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-white rounded-2xl border border-[#ebdcc7] shadow-xs">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 bg-threatcast-card rounded-2xl border border-tc-border shadow-xs">
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-[#7a644c] absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-threatcast-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search Incident ID, title, or asset..."
-            className="w-full pl-10 pr-3.5 py-2 text-xs rounded-xl border border-[#ebdcc7] bg-[#fcfaf7] text-[#221207] placeholder:text-[#998165] focus:outline-none focus:ring-2 focus:ring-[#b45309]/30 font-mono"
+            className="w-full pl-10 pr-3.5 py-2 text-xs rounded-xl border border-tc-border bg-threatcast-card text-threatcast-text placeholder:text-threatcast-muted focus:outline-none focus:ring-2 focus:ring-[var(--tc-cyan)]/30 font-mono"
           />
         </div>
 
@@ -125,7 +125,7 @@ export default function Incidents() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="text-xs px-3.5 py-2 rounded-xl border border-[#ebdcc7] bg-[#fcfaf7] text-[#544230] focus:outline-none font-mono cursor-pointer"
+            className="text-xs px-3.5 py-2 rounded-xl border border-tc-border bg-threatcast-card text-threatcast-silver focus:outline-none font-mono cursor-pointer"
           >
             <option value="all">All Incident Statuses</option>
             <option value="Forecasted">Forecasted (Pre-emptive)</option>

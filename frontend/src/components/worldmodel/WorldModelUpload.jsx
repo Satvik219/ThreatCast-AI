@@ -1,4 +1,4 @@
-﻿import React, { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import FlaggedFlowsPanel from "./FlaggedFlowsPanel";
 import ModelSensitivityAttribution from "./ModelSensitivityAttribution";
 import InteractiveNetworkGraph3D from "../network/InteractiveNetworkGraph3D";
@@ -329,7 +329,7 @@ const rollout =
           UPLOAD
       ==================================================== */}
 
-      <div className="rounded-2xl border border-slate-700 bg-[#0D1115] p-6">
+      <div className="rounded-2xl border border-slate-700 bg-threatcast-card p-6">
 
         <div className="flex flex-col gap-2">
 
@@ -375,7 +375,7 @@ const rollout =
               rounded-lg
               border
               border-slate-700
-              bg-[#11161B]
+              bg-threatcast-elevated
               px-4
               py-3
               text-sm
@@ -398,7 +398,7 @@ const rollout =
 
           {file && (
 
-            <div className="rounded-lg border border-slate-700 bg-[#11161B] p-4">
+            <div className="rounded-lg border border-slate-700 bg-threatcast-elevated p-4">
 
               <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 
@@ -585,7 +585,7 @@ const rollout =
               title="Temporal States"
               value={
                 result.states ??
-                "â€”"
+                "—"
               }
             />
 
@@ -594,7 +594,7 @@ const rollout =
               value={
                 result.sequence_length
                   ? `${result.sequence_length} states`
-                  : "â€”"
+                  : "—"
               }
             />
 
@@ -632,7 +632,7 @@ const rollout =
 
           {worldModel && (
 
-            <div className="rounded-2xl border border-cyan-400/20 bg-[#0D1115] p-6">
+            <div className="rounded-2xl border border-cyan-400/20 bg-threatcast-card p-6">
 
               <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 
@@ -681,7 +681,7 @@ const rollout =
 
               {worldModel.calibration && (
 
-                <div className="mt-5 rounded-lg border border-slate-800 bg-[#11161B] p-4">
+                <div className="mt-5 rounded-lg border border-slate-800 bg-threatcast-elevated p-4">
 
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
 
@@ -691,7 +691,7 @@ const rollout =
                         worldModel
                           .calibration
                           .method ||
-                        "â€”"
+                        "—"
                       }
                     />
 
@@ -701,7 +701,7 @@ const rollout =
                         worldModel
                           .calibration
                           .calibration_windows ??
-                        "â€”"
+                        "—"
                       }
                     />
 
@@ -711,7 +711,7 @@ const rollout =
                         worldModel
                           .forecast_horizon
                           ? `K=${worldModel.forecast_horizon}`
-                          : "â€”"
+                          : "—"
                       }
                     />
 
@@ -732,7 +732,7 @@ const rollout =
 
           {stagePrediction && (
 
-            <div className="rounded-2xl border border-violet-500/30 bg-[#0D1115] p-6">
+            <div className="rounded-2xl border border-violet-500/30 bg-threatcast-card p-6">
 
               <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 
@@ -832,7 +832,7 @@ const rollout =
 
                           <div
                             key={`${mapping.technique}-${index}`}
-                            className="rounded-lg border border-slate-800 bg-[#11161B] p-4"
+                            className="rounded-lg border border-slate-800 bg-threatcast-elevated p-4"
                           >
 
                             <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
@@ -841,7 +841,7 @@ const rollout =
                                 label="Activity"
                                 value={
                                   mapping.activity ||
-                                  "â€”"
+                                  "—"
                                 }
                               />
 
@@ -849,7 +849,7 @@ const rollout =
                                 label="Tactic"
                                 value={
                                   mapping.tactic ||
-                                  "â€”"
+                                  "—"
                                 }
                               />
 
@@ -857,7 +857,7 @@ const rollout =
                                 label="Technique"
                                 value={
                                   mapping.technique ||
-                                  "â€”"
+                                  "—"
                                 }
                               />
 
@@ -899,7 +899,7 @@ const rollout =
             pcapGraphData &&
             pcapGraphData.nodes.length > 0 && (
 
-              <div className="rounded-2xl border border-slate-800 bg-[#0D1115] p-6 space-y-4">
+              <div className="rounded-2xl border border-slate-800 bg-threatcast-card p-6 space-y-4">
                 <div>
                   <h3 className="text-lg font-semibold text-slate-100">
                     Network Topology - This PCAP
@@ -973,7 +973,7 @@ const rollout =
 ================================================== */}
 
 {result.stage_interpretation && (
-            <div className="rounded-2xl border border-amber-500/20 bg-[#0D1115] p-6">
+            <div className="rounded-2xl border border-amber-500/20 bg-threatcast-card p-6">
 
               <h3 className="text-lg font-semibold text-slate-100">
                 CTU13 Activity Interpretation
@@ -987,7 +987,7 @@ const rollout =
                     result
                       .stage_interpretation
                       .activity ||
-                    "â€”"
+                    "—"
                   }
                 />
 
@@ -997,7 +997,7 @@ const rollout =
                     result
                       .stage_interpretation
                       .tactic ||
-                    "â€”"
+                    "—"
                   }
                 />
 
@@ -1007,7 +1007,7 @@ const rollout =
                     result
                       .stage_interpretation
                       .technique ||
-                    "â€”"
+                    "—"
                   }
                 />
 
@@ -1059,7 +1059,7 @@ function PredictionAttribution({
 
   if (!attribution.available) {
     return (
-      <div className="rounded-2xl border border-slate-800 bg-[#0D1115] p-6">
+      <div className="rounded-2xl border border-slate-800 bg-threatcast-card p-6">
         <h3 className="text-lg font-semibold text-slate-100">
           Prediction Input Evidence
         </h3>
@@ -1082,13 +1082,13 @@ function PredictionAttribution({
 
   const formatNumber = (value) => {
     const number = Number(value);
-    if (!Number.isFinite(number)) return "â€”";
+    if (!Number.isFinite(number)) return "—";
     return number.toLocaleString(undefined, { maximumFractionDigits: 2 });
   };
 
   const formatBytes = (value) => {
     const bytes = Number(value);
-    if (!Number.isFinite(bytes)) return "â€”";
+    if (!Number.isFinite(bytes)) return "—";
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -1096,13 +1096,13 @@ function PredictionAttribution({
   };
 
   const endpoint = (ip, port) => {
-    if (!ip) return "â€”";
+    if (!ip) return "—";
     if (port === null || port === undefined || port === "") return String(ip);
     return `${ip}:${port}`;
   };
 
   return (
-    <section className="rounded-2xl border border-orange-400/20 bg-[#0D1115] p-6">
+    <section className="rounded-2xl border border-orange-400/20 bg-threatcast-card p-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-slate-100">
@@ -1119,13 +1119,13 @@ function PredictionAttribution({
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Metric title="Input States" value={attribution.sequence_length ?? "â€”"} />
-        <Metric title="Matched Flows" value={attribution.matched_flow_count ?? "â€”"} />
-        <Metric title="Flagged Flows" value={attribution.matched_flagged_flow_count ?? "â€”"} />
-        <Metric title="Matched Packets" value={attribution.matched_packet_count ?? "â€”"} />
+        <Metric title="Input States" value={attribution.sequence_length ?? "—"} />
+        <Metric title="Matched Flows" value={attribution.matched_flow_count ?? "—"} />
+        <Metric title="Flagged Flows" value={attribution.matched_flagged_flow_count ?? "—"} />
+        <Metric title="Matched Packets" value={attribution.matched_packet_count ?? "—"} />
       </div>
 
-      <div className="mt-5 rounded-xl border border-slate-800 bg-[#11161B] p-5">
+      <div className="mt-5 rounded-xl border border-slate-800 bg-threatcast-elevated p-5">
         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-600">
           Prediction Input Window
         </p>
@@ -1133,13 +1133,13 @@ function PredictionAttribution({
           <div>
             <p className="text-[10px] uppercase tracking-wider text-slate-600">Start</p>
             <p className="mt-1 break-all font-mono text-xs text-slate-300">
-              {window.start_iso || window.start_timestamp || "â€”"}
+              {window.start_iso || window.start_timestamp || "—"}
             </p>
           </div>
           <div>
             <p className="text-[10px] uppercase tracking-wider text-slate-600">End</p>
             <p className="mt-1 break-all font-mono text-xs text-slate-300">
-              {window.end_iso || window.end_timestamp || "â€”"}
+              {window.end_iso || window.end_timestamp || "—"}
             </p>
           </div>
         </div>
@@ -1177,7 +1177,7 @@ function PredictionAttribution({
         </div>
 
         {displayFlows.length === 0 ? (
-          <div className="mt-4 rounded-xl border border-slate-800 bg-[#11161B] p-5">
+          <div className="mt-4 rounded-xl border border-slate-800 bg-threatcast-elevated p-5">
             <p className="text-sm text-slate-400">
               No packet flows overlapped the prediction input window.
             </p>
@@ -1192,7 +1192,7 @@ function PredictionAttribution({
                   className={`rounded-xl border p-4 ${
                     flow?.flagged
                       ? "border-red-400/20 bg-red-400/5"
-                      : "border-slate-800 bg-[#11161B]"
+                      : "border-slate-800 bg-threatcast-elevated"
                   }`}
                 >
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -1212,7 +1212,7 @@ function PredictionAttribution({
                         <span className="break-all font-mono text-xs font-semibold text-slate-200">
                           {endpoint(flow?.src_ip, flow?.src_port)}
                         </span>
-                        <span className="text-cyan-400">â†’</span>
+                        <span className="text-cyan-400">→</span>
                         <span className="break-all font-mono text-xs font-semibold text-slate-200">
                           {endpoint(flow?.dst_ip, flow?.dst_port)}
                         </span>
@@ -1289,14 +1289,14 @@ function Metric({
 
   return (
 
-    <div className="rounded-2xl border border-slate-700 bg-[#0D1115] p-5">
+    <div className="rounded-2xl border border-slate-700 bg-threatcast-card p-5">
 
       <p className="text-xs uppercase tracking-wider text-slate-500">
         {title}
       </p>
 
       <p className="mt-2 break-words text-xl font-semibold text-slate-100">
-        {value ?? "â€”"}
+        {value ?? "—"}
       </p>
 
     </div>
@@ -1333,7 +1333,7 @@ function RiskCard({
         ${
           attack
             ? "border-red-400/30 bg-red-400/5"
-            : "border-slate-700 bg-[#11161B]"
+            : "border-slate-700 bg-threatcast-elevated"
         }
       `}
     >
@@ -1373,7 +1373,7 @@ function RiskCard({
           probability
         )
           ? `${probability.toFixed(2)}%`
-          : "â€”"}
+          : "—"}
 
       </p>
 
@@ -1388,7 +1388,7 @@ function RiskCard({
                     item.threshold
                   ) * 100
                 ).toFixed(2)}%`
-              : "â€”"
+              : "—"
           }
         />
 
@@ -1425,7 +1425,7 @@ function StageCard({
 
   return (
 
-    <div className="rounded-xl border border-slate-700 bg-[#11161B] p-4">
+    <div className="rounded-xl border border-slate-700 bg-threatcast-elevated p-4">
 
       <div className="flex items-center justify-between gap-3">
 
@@ -1449,7 +1449,7 @@ function StageCard({
           probability
         )
           ? `${probability.toFixed(2)}%`
-          : "â€”"}
+          : "—"}
 
       </p>
 
@@ -1463,7 +1463,7 @@ function StageCard({
                 data.threshold
               ) * 100
             ).toFixed(1)}%`
-          : "â€”"}
+          : "—"}
 
       </p>
 
@@ -1483,7 +1483,7 @@ function PcapMetadata({
 
   return (
 
-    <div className="rounded-2xl border border-cyan-400/20 bg-[#0D1115] p-6">
+    <div className="rounded-2xl border border-cyan-400/20 bg-threatcast-card p-6">
 
       <h3 className="text-lg font-semibold text-slate-100">
         PCAP Extraction
@@ -1502,7 +1502,7 @@ function PcapMetadata({
           value={
             metadata.packet_count ??
             metadata.packets ??
-            "â€”"
+            "—"
           }
         />
 
@@ -1520,7 +1520,7 @@ function PcapMetadata({
           value={
             metadata.state_count ??
             metadata.states ??
-            "â€”"
+            "—"
           }
         />
 
@@ -1529,7 +1529,7 @@ function PcapMetadata({
           value={
             metadata.flow_count ??
             metadata.flows ??
-            "â€”"
+            "—"
           }
         />
 
@@ -1629,7 +1629,7 @@ function PacketEvidence({
 
   return (
 
-    <div className="rounded-2xl border border-orange-400/20 bg-[#0D1115] p-6">
+    <div className="rounded-2xl border border-orange-400/20 bg-threatcast-card p-6">
 
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 
@@ -1660,7 +1660,7 @@ function PacketEvidence({
 
             <div
               key={label}
-              className="rounded-lg border border-slate-800 bg-[#11161B] p-4"
+              className="rounded-lg border border-slate-800 bg-threatcast-elevated p-4"
             >
 
               <p className="text-xs uppercase tracking-wider text-slate-500">
@@ -1701,7 +1701,7 @@ function PacketAttribution({
 
     return (
 
-      <div className="rounded-2xl border border-slate-700 bg-[#0D1115] p-6">
+      <div className="rounded-2xl border border-slate-700 bg-threatcast-card p-6">
 
         <h3 className="text-lg font-semibold text-slate-100">
           Packet / Port / Flag Attribution
@@ -1729,7 +1729,7 @@ function PacketAttribution({
 
   return (
 
-    <div className="rounded-2xl border border-red-400/20 bg-[#0D1115] p-6">
+    <div className="rounded-2xl border border-red-400/20 bg-threatcast-card p-6">
 
       {/* Header */}
 
@@ -1808,7 +1808,7 @@ function PacketAttribution({
 
         {flaggedFlows.length === 0 ? (
 
-          <div className="mt-4 rounded-lg border border-slate-800 bg-[#11161B] p-5">
+          <div className="mt-4 rounded-lg border border-slate-800 bg-threatcast-elevated p-5">
 
             <p className="text-sm text-slate-400">
               No flows crossed the configured
@@ -1858,7 +1858,7 @@ function PacketAttribution({
 
               <thead>
 
-                <tr className="border-b border-slate-800 bg-[#11161B]">
+                <tr className="border-b border-slate-800 bg-threatcast-elevated">
 
                   <th className="whitespace-nowrap px-4 py-3 text-xs uppercase tracking-wider text-slate-500">
                     Source
@@ -1936,7 +1936,7 @@ function PacketAttribution({
 
       {/* Scientific note */}
 
-      <div className="mt-7 rounded-lg border border-slate-800 bg-[#11161B] p-4">
+      <div className="mt-7 rounded-lg border border-slate-800 bg-threatcast-elevated p-4">
 
         <p className="text-xs leading-5 text-slate-500">
           This is deterministic packet/flow evidence
@@ -1969,7 +1969,7 @@ function FlaggedFlowCard({
 
   return (
 
-    <div className="rounded-xl border border-red-400/20 bg-[#11161B] p-5">
+    <div className="rounded-xl border border-red-400/20 bg-threatcast-elevated p-5">
 
       {/* Flow header */}
 
@@ -1997,7 +1997,7 @@ function FlaggedFlowCard({
             </span>
 
             <span className="text-slate-600">
-              â†’
+              →
             </span>
 
             <span className="font-mono text-sm text-slate-200">
@@ -2174,7 +2174,7 @@ function TemporalInput({
 
   return (
 
-    <div className="rounded-2xl border border-slate-700 bg-[#0D1115] p-6">
+    <div className="rounded-2xl border border-slate-700 bg-threatcast-card p-6">
 
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
 
@@ -2185,14 +2185,14 @@ function TemporalInput({
           </h3>
 
           <p className="mt-1 text-xs text-slate-500">
-            {result.features.length} features Ã—{" "}
+            {result.features.length} features ×{" "}
             {result.input.sequence.length} states
           </p>
 
         </div>
 
         <span className="rounded-full border border-slate-700 bg-slate-800/50 px-3 py-1 text-xs text-slate-400">
-          {result.input.sequence.length} Ã—{" "}
+          {result.input.sequence.length} ×{" "}
           {result.features.length}
         </span>
 
@@ -2205,7 +2205,7 @@ function TemporalInput({
 
           <thead>
 
-            <tr className="border-b border-slate-700 bg-[#11161B] text-slate-400">
+            <tr className="border-b border-slate-700 bg-threatcast-elevated text-slate-400">
 
               <th className="whitespace-nowrap px-3 py-3 text-xs uppercase tracking-wider">
                 State
@@ -2301,7 +2301,7 @@ function InfoItem({
       </p>
 
       <p className="mt-1 break-words text-sm text-slate-300">
-        {value ?? "â€”"}
+        {value ?? "—"}
       </p>
 
     </div>
@@ -2386,7 +2386,7 @@ function formatNumber(
     value === undefined
   ) {
 
-    return "â€”";
+    return "—";
   }
 
   const number =
@@ -2431,7 +2431,7 @@ function formatPercent(
     )
   ) {
 
-    return "â€”";
+    return "—";
   }
 
   return `${number.toFixed(2)}%`;
@@ -2450,7 +2450,7 @@ function formatBytes(
     number < 0
   ) {
 
-    return "â€”";
+    return "—";
   }
 
   if (number < 1024) {

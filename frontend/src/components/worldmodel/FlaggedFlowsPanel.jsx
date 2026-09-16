@@ -57,7 +57,7 @@ function FlowFlag({ label, value, activeTone = "cyan" }) {
       className={`rounded-lg border px-3 py-2 ${
         active
           ? activeClasses
-          : "border-slate-800 bg-[#11161B] text-slate-500"
+          : "border-slate-800 bg-threatcast-elevated text-slate-500"
       }`}
     >
       <div className="text-[10px] font-semibold uppercase tracking-wider">
@@ -75,7 +75,7 @@ function EvidenceReasons({ flow }) {
 
   if (reasons.length === 0) {
     return (
-      <div className="rounded-xl border border-slate-800 bg-[#11161B] p-4 text-xs text-slate-500">
+      <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-4 text-xs text-slate-500">
         No deterministic evidence rule was triggered for this flow.
       </div>
     );
@@ -106,14 +106,14 @@ function FlowCard({ flow, index }) {
     <article
       className={`overflow-hidden rounded-2xl border ${
         flagged
-          ? "border-red-500/20 bg-[#0D1115]"
-          : "border-slate-800 bg-[#0D1115]"
+          ? "border-red-500/20 bg-threatcast-card"
+          : "border-slate-800 bg-threatcast-card"
       }`}
     >
       <button
         type="button"
         onClick={() => setExpanded((current) => !current)}
-        className="w-full p-5 text-left transition hover:bg-white/[0.02]"
+        className="w-full p-5 text-left transition hover:bg-threatcast-card/[0.02]"
         aria-expanded={expanded}
       >
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -149,7 +149,7 @@ function FlowCard({ flow, index }) {
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              <div className="rounded-lg border border-slate-800 bg-[#11161B] px-3 py-2">
+              <div className="rounded-lg border border-slate-800 bg-threatcast-elevated px-3 py-2">
                 <div className="text-[10px] uppercase tracking-wider text-slate-600">
                   Packets
                 </div>
@@ -158,7 +158,7 @@ function FlowCard({ flow, index }) {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-slate-800 bg-[#11161B] px-3 py-2">
+              <div className="rounded-lg border border-slate-800 bg-threatcast-elevated px-3 py-2">
                 <div className="text-[10px] uppercase tracking-wider text-slate-600">
                   Bytes
                 </div>
@@ -167,7 +167,7 @@ function FlowCard({ flow, index }) {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-slate-800 bg-[#11161B] px-3 py-2">
+              <div className="rounded-lg border border-slate-800 bg-threatcast-elevated px-3 py-2">
                 <div className="text-[10px] uppercase tracking-wider text-slate-600">
                   SYN
                 </div>
@@ -180,7 +180,7 @@ function FlowCard({ flow, index }) {
                 className={`rounded-lg border px-3 py-2 ${
                   flagged
                     ? "border-red-400/20 bg-red-400/5"
-                    : "border-slate-800 bg-[#11161B]"
+                    : "border-slate-800 bg-threatcast-elevated"
                 }`}
               >
                 <div className="text-[10px] uppercase tracking-wider text-slate-600">
@@ -227,7 +227,7 @@ function FlowCard({ flow, index }) {
           </div>
 
           <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div className="rounded-xl border border-slate-800 bg-[#11161B] p-4">
+            <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-4">
               <p className="text-[10px] uppercase tracking-wider text-slate-600">
                 SYN without ACK
               </p>
@@ -240,7 +240,7 @@ function FlowCard({ flow, index }) {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-800 bg-[#11161B] p-4">
+            <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-4">
               <p className="text-[10px] uppercase tracking-wider text-slate-600">
                 SYN Ratio
               </p>
@@ -249,7 +249,7 @@ function FlowCard({ flow, index }) {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-800 bg-[#11161B] p-4">
+            <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-4">
               <p className="text-[10px] uppercase tracking-wider text-slate-600">
                 Duration
               </p>
@@ -269,7 +269,7 @@ function FlowCard({ flow, index }) {
           </div>
 
           <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
-            <div className="rounded-xl border border-slate-800 bg-[#11161B] p-4">
+            <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-4">
               <p className="text-[10px] uppercase tracking-wider text-slate-600">
                 First Seen
               </p>
@@ -278,7 +278,7 @@ function FlowCard({ flow, index }) {
               </p>
             </div>
 
-            <div className="rounded-xl border border-slate-800 bg-[#11161B] p-4">
+            <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-4">
               <p className="text-[10px] uppercase tracking-wider text-slate-600">
                 Last Seen
               </p>
@@ -296,7 +296,7 @@ function FlowCard({ flow, index }) {
 function FlowTable({ flows }) {
   if (!flows.length) {
     return (
-      <div className="rounded-xl border border-slate-800 bg-[#11161B] p-6 text-center text-sm text-slate-500">
+      <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-6 text-center text-sm text-slate-500">
         No flow summary available.
       </div>
     );
@@ -305,7 +305,7 @@ function FlowTable({ flows }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-slate-800">
       <table className="min-w-full text-left text-sm">
-        <thead className="bg-[#11161B]">
+        <thead className="bg-threatcast-elevated">
           <tr className="border-b border-slate-800">
             <th className="px-4 py-3 text-[10px] uppercase tracking-wider text-slate-600">
               Source
@@ -333,7 +333,7 @@ function FlowTable({ flows }) {
             return (
               <tr
                 key={`${flow?.src_ip}-${flow?.src_port}-${flow?.dst_ip}-${flow?.dst_port}-${index}`}
-                className="border-b border-slate-800 last:border-0 hover:bg-white/[0.02]"
+                className="border-b border-slate-800 last:border-0 hover:bg-threatcast-card/[0.02]"
               >
                 <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-300">
                   {endpoint(flow?.src_ip, flow?.src_port)}
@@ -447,7 +447,7 @@ export default function FlaggedFlowsPanel({ attribution }) {
 
   if (!attribution.available) {
     return (
-      <section className="rounded-2xl border border-slate-800 bg-[#0D1115] p-6">
+      <section className="rounded-2xl border border-slate-800 bg-threatcast-card p-6">
         <div className="flex items-center gap-3">
           <ShieldAlert className="h-5 w-5 text-slate-500" />
           <div>
@@ -464,7 +464,7 @@ export default function FlaggedFlowsPanel({ attribution }) {
   }
 
   return (
-    <section className="rounded-2xl border border-red-500/20 bg-[#0D1115] p-6">
+    <section className="rounded-2xl border border-red-500/20 bg-threatcast-card p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex items-center gap-3">
@@ -500,7 +500,7 @@ export default function FlaggedFlowsPanel({ attribution }) {
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <div className="rounded-xl border border-slate-800 bg-[#11161B] p-4">
+        <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-4">
           <p className="text-[10px] uppercase tracking-wider text-slate-600">
             Total Flows
           </p>
@@ -513,7 +513,7 @@ export default function FlaggedFlowsPanel({ attribution }) {
           className={`rounded-xl border p-4 ${
             flaggedCount > 0
               ? "border-red-400/20 bg-red-400/5"
-              : "border-slate-800 bg-[#11161B]"
+              : "border-slate-800 bg-threatcast-elevated"
           }`}
         >
           <p className="text-[10px] uppercase tracking-wider text-slate-600">
@@ -528,7 +528,7 @@ export default function FlaggedFlowsPanel({ attribution }) {
           </p>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-[#11161B] p-4">
+        <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-4">
           <p className="text-[10px] uppercase tracking-wider text-slate-600">
             Packets
           </p>
@@ -557,7 +557,7 @@ export default function FlaggedFlowsPanel({ attribution }) {
       </div>
 
       <div className="mt-5 flex flex-col gap-3 xl:flex-row">
-        <div className="flex rounded-xl border border-slate-800 bg-[#11161B] p-1">
+        <div className="flex rounded-xl border border-slate-800 bg-threatcast-elevated p-1">
           <button
             type="button"
             onClick={() => {
@@ -598,11 +598,11 @@ export default function FlaggedFlowsPanel({ attribution }) {
               setShowAll(false);
             }}
             placeholder="Search source, destination, port, protocol, or evidence reason..."
-            className="w-full rounded-xl border border-slate-800 bg-[#11161B] py-3 pl-10 pr-4 text-xs text-slate-300 outline-none placeholder:text-slate-600 focus:border-cyan-400/40"
+            className="w-full rounded-xl border border-slate-800 bg-threatcast-elevated py-3 pl-10 pr-4 text-xs text-slate-300 outline-none placeholder:text-slate-600 focus:border-cyan-400/40"
           />
         </div>
 
-        <div className="flex items-center gap-2 rounded-xl border border-slate-800 bg-[#11161B] px-3">
+        <div className="flex items-center gap-2 rounded-xl border border-slate-800 bg-threatcast-elevated px-3">
           <SlidersHorizontal className="h-4 w-4 text-slate-600" />
           <select
             value={sortMode}
@@ -640,7 +640,7 @@ export default function FlaggedFlowsPanel({ attribution }) {
 
       <div className="mt-5 space-y-3">
         {visibleFlows.length === 0 ? (
-          <div className="rounded-xl border border-slate-800 bg-[#11161B] p-6 text-center">
+          <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-6 text-center">
             <Filter className="mx-auto h-5 w-5 text-slate-600" />
             <p className="mt-2 text-sm text-slate-400">
               No flows match the current search and sort view.

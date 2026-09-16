@@ -67,7 +67,7 @@ function firstDefined(...values) {
 
 function StatCard({ label, value, danger = false, positive = false }) {
   return (
-    <div className="rounded-xl border border-slate-700 bg-[#11161B] p-4">
+    <div className="rounded-xl border border-slate-700 bg-threatcast-elevated p-4">
       <p className="text-[10px] uppercase tracking-wider text-slate-600">
         {label}
       </p>
@@ -89,7 +89,7 @@ function StatCard({ label, value, danger = false, positive = false }) {
 
 function Info({ label, value }) {
   return (
-    <div className="rounded-lg border border-slate-800 bg-[#0D1115] p-3">
+    <div className="rounded-lg border border-slate-800 bg-threatcast-card p-3">
       <p className="text-[9px] uppercase tracking-wider text-slate-600">
         {label}
       </p>
@@ -150,7 +150,7 @@ function FlowCard({ flow, index }) {
 
   return (
     <div
-      className={`overflow-hidden rounded-xl border bg-[#11161B] ${
+      className={`overflow-hidden rounded-xl border bg-threatcast-elevated ${
         flagged
           ? "border-red-400/20"
           : "border-slate-700"
@@ -418,7 +418,7 @@ function FlowCard({ flow, index }) {
               return (
                 <div
                   key={`${horizon}-${horizonIndex}`}
-                  className="rounded-lg border border-slate-800 bg-[#0D1115] p-4"
+                  className="rounded-lg border border-slate-800 bg-threatcast-card p-4"
                 >
                   <p className="text-[10px] font-medium uppercase tracking-wider text-cyan-300">
                     {horizon}
@@ -488,7 +488,7 @@ function HorizonCard({ horizon, data }) {
   );
 
   return (
-    <div className="rounded-xl border border-slate-800 bg-[#11161B] p-4">
+    <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-4">
       <p className="text-[10px] uppercase tracking-wider text-slate-600">
         {horizon}
       </p>
@@ -526,7 +526,7 @@ function ModelSensitivitySection({ attribution }) {
 
   if (!attribution.available) {
     return (
-      <div className="mt-6 rounded-2xl border border-slate-700 bg-[#0D1115] p-6">
+      <div className="mt-6 rounded-2xl border border-slate-700 bg-threatcast-card p-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h4 className="text-lg font-semibold text-slate-100">
@@ -562,7 +562,7 @@ function ModelSensitivitySection({ attribution }) {
   const baseline = attribution.baseline_raw_probabilities || {};
 
   return (
-    <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-[#0D1115] p-6">
+    <div className="mt-6 rounded-2xl border border-cyan-400/20 bg-threatcast-card p-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h4 className="text-lg font-semibold text-slate-100">
@@ -689,7 +689,7 @@ function ModelSensitivitySection({ attribution }) {
 
         <div className="mt-4 space-y-3">
           {visible.length === 0 ? (
-            <div className="rounded-xl border border-slate-800 bg-[#11161B] p-8 text-center">
+            <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-8 text-center">
               <p className="text-sm text-slate-400">
                 No flow perturbation results were produced.
               </p>
@@ -756,7 +756,7 @@ export default function PredictionAttribution({
   return (
     <div className="mt-6 space-y-6">
       {attribution && (
-        <div className="rounded-2xl border border-slate-700 bg-[#0D1115] p-6">
+        <div className="rounded-2xl border border-slate-700 bg-threatcast-card p-6">
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
               <h3 className="text-lg font-semibold text-slate-100">
@@ -895,7 +895,7 @@ export default function PredictionAttribution({
             />
           </div>
 
-          <div className="mt-6 rounded-xl border border-slate-800 bg-[#11161B] p-5">
+          <div className="mt-6 rounded-xl border border-slate-800 bg-threatcast-elevated p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-[10px] uppercase tracking-wider text-slate-600">
@@ -1011,7 +1011,7 @@ export default function PredictionAttribution({
 
             <div className="mt-4 space-y-3">
               {visibleFlows.length === 0 ? (
-                <div className="rounded-xl border border-slate-800 bg-[#11161B] p-8 text-center">
+                <div className="rounded-xl border border-slate-800 bg-threatcast-elevated p-8 text-center">
                   <p className="text-sm text-slate-400">
                     No packet flows overlapped the temporal prediction
                     input window.
