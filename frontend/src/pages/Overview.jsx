@@ -12,7 +12,7 @@ import ModelRuleComparisonCard from '../components/dashboard/ModelRuleComparison
 
 import AttackProgressionTimeline from '../components/forecast/AttackProgressionTimeline';
 
-import InteractiveNetworkGraph from '../components/network/InteractiveNetworkGraph';
+import InteractiveNetworkGraph3D from '../components/network/InteractiveNetworkGraph3D';
 
 import { useDashboard } from '../hooks/useDashboard';
 import { useForecast } from '../hooks/useForecast';
@@ -209,7 +209,7 @@ export default function Overview() {
           </div>
 
 
-          <InteractiveNetworkGraph
+          <InteractiveNetworkGraph3D
             graphData={graph}
             compact={true}
             activeScenario={currentScenario}

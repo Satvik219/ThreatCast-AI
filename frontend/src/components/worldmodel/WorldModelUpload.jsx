@@ -1,6 +1,105 @@
 ﻿import React, { useMemo, useState } from "react";
 import FlaggedFlowsPanel from "./FlaggedFlowsPanel";
 import ModelSensitivityAttribution from "./ModelSensitivityAttribution";
+import InteractiveNetworkGraph3D from "../network/InteractiveNetworkGraph3D";
+
+const SERVER_PORTS = new Set([80, 443, 22, 21, 25, 53, 8080, 8443]);
+const DATABASE_PORTS = new Set([3306, 5432, 1433, 1521, 27017, 6379, 9200]);
+
+function classifyNodeType(ip, portsSeenAsDst) {
+  const ports = portsSeenAsDst.get(ip);
+  if (!ports || ports.size === 0) return "endpoint";
+  if ([...ports].some((port) => DATABASE_PORTS.has(port))) return "database";
+  if ([...ports].some((port) => SERVER_PORTS.has(port))) return "server";
+  if (ip && (ip.endsWith(".1") || ip.endsWith(".254"))) return "gateway";
+  return "endpoint";
+}
+
+function buildPcapTopologyGraph(attribution) {
+  if (!attribution || attribution.available === false) return null;
+
+  const flows = Array.isArray(attribution.top_flows) ? attribution.top_flows : [];
+  if (flows.length === 0) return null;
+
+  const portsSeenAsDst = new Map();
+  flows.forEach((flow) => {
+    if (!flow?.dst_ip) return;
+    const ports = portsSeenAsDst.get(flow.dst_ip) || new Set();
+    if (Number.isFinite(Number(flow.dst_port))) ports.add(Number(flow.dst_port));
+    portsSeenAsDst.set(flow.dst_ip, ports);
+  });
+
+  const flaggedIds = new Set();
+  const compromisedIds = new Set();
+  const maxScoreByNode = new Map();
+
+  flows.forEach((flow) => {
+    if (!flow?.src_ip || !flow?.dst_ip) return;
+    const score = Number(flow.evidence_score) || 0;
+    [flow.src_ip, flow.dst_ip].forEach((ip) => {
+      maxScoreByNode.set(ip, Math.max(maxScoreByNode.get(ip) || 0, score));
+    });
+    if (flow.flagged) {
+      flaggedIds.add(flow.src_ip);
+      flaggedIds.add(flow.dst_ip);
+      if (score >= 3) {
+        compromisedIds.add(flow.src_ip);
+        compromisedIds.add(flow.dst_ip);
+      }
+    }
+  });
+
+  const forecastIds = new Set();
+  flows
+    .filter((flow) => flaggedIds.has(flow?.src_ip) && !flaggedIds.has(flow?.dst_ip))
+    .sort((a, b) => (Number(b.packet_count) || 0) - (Number(a.packet_count) || 0))
+    .slice(0, 3)
+    .forEach((flow) => forecastIds.add(flow.dst_ip));
+
+  const nodeIds = new Set();
+  flows.forEach((flow) => {
+    if (flow?.src_ip) nodeIds.add(flow.src_ip);
+    if (flow?.dst_ip) nodeIds.add(flow.dst_ip);
+  });
+
+  const nodes = Array.from(nodeIds).map((ip) => {
+    const score = maxScoreByNode.get(ip) || 0;
+    return {
+      id: ip,
+      ip,
+      type: classifyNodeType(ip, portsSeenAsDst),
+      state: compromisedIds.has(ip)
+        ? "compromised"
+        : flaggedIds.has(ip)
+        ? "suspicious"
+        : forecastIds.has(ip)
+        ? "target"
+        : undefined,
+      risk_score: Math.max(0, Math.min(100, Math.round(score * 20))),
+    };
+  });
+
+  const edges = flows
+    .filter((flow) => flow?.src_ip && flow?.dst_ip)
+    .map((flow, index) => ({
+      id: `${flow.src_ip}-${flow.dst_ip}-${flow.dst_port ?? index}-${index}`,
+      source: flow.src_ip,
+      target: flow.dst_ip,
+      protocol: flow.protocol,
+      is_attack_path: Boolean(flow.flagged),
+      is_forecasted_path: !flow.flagged && forecastIds.has(flow.dst_ip),
+    }));
+
+  return {
+    nodes,
+    edges,
+    attack_path_node_ids: Array.from(flaggedIds),
+    forecasted_path_node_ids: Array.from(forecastIds),
+    high_risk_nodes_count: nodes.filter(
+      (node) => node.state === "compromised" || node.state === "suspicious"
+    ).length,
+  };
+}
 
 
 const API_URL =
@@ -63,6 +162,11 @@ const modelSensitivityAttribution =
 
 const rollout =
   worldModel?.rollout || [];
+
+  const pcapGraphData = useMemo(
+    () => buildPcapTopologyGraph(packetAttribution),
+    [packetAttribution]
+  );
 
   // ==========================================================
   // FILE HANDLING
@@ -787,6 +891,29 @@ const rollout =
                   packetEvidence
                 }
               />
+
+            )}
+
+
+          {inputSource === "pcap" &&
+            pcapGraphData &&
+            pcapGraphData.nodes.length > 0 && (
+
+              <div className="rounded-2xl border border-slate-800 bg-[#0D1115] p-6 space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-100">
+                    Network Topology - This PCAP
+                  </h3>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    A fresh topology generated from this file&apos;s flow evidence.
+                  </p>
+                </div>
+
+                <InteractiveNetworkGraph3D
+                  key={`${result?.filename || "pcap"}-${packetAttribution?.packet_count ?? 0}-${packetAttribution?.flow_count ?? 0}`}
+                  graphData={pcapGraphData}
+                />
+              </div>
 
             )}
 

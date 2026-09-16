@@ -71,7 +71,7 @@
   "scenario_13_used_for_training": false,
   "scenario_13_used_for_model_selection": false,
   "scenario_13_used_for_threshold_selection": false,
-  "validation_macro_f1_at_0_5": 0.8330705373808822,
+  "validation_macro_f1_at_0_5": 0.8262108262108262,
   "validation_micro_f1_at_0_5": 0.8690095846645367,
   "selected_validation_thresholds": {
     "Discovery": {

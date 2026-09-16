@@ -4,7 +4,7 @@ import { useOutletContext } from 'react-router-dom';
 import PageHeader from '../components/common/PageHeader';
 import LoadingState from '../components/common/LoadingState';
 import ErrorState from '../components/common/ErrorState';
-import InteractiveNetworkGraph from '../components/network/InteractiveNetworkGraph';
+import InteractiveNetworkGraph3D from '../components/network/InteractiveNetworkGraph3D';
 import NodeDetailsDrawer from '../components/network/NodeDetailsDrawer';
 import NetworkFilters from '../components/network/NetworkFilters';
 import { useNetworkGraph } from '../hooks/useNetworkGraph';
@@ -118,7 +118,7 @@ export default function NetworkGraph() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <InteractiveNetworkGraph
+          <InteractiveNetworkGraph3D
             graphData={filteredGraph}
             selectedNodeId={selectedNode?.id}
             onSelectNode={setSelectedNode}

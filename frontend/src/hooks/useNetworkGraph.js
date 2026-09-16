@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getNetworkGraph, getNetworkActivity } from '../services/api';
+import { buildPcapTopologyGraph, usePcapAnalysis } from '../context/PcapAnalysisContext';
 
 export function useNetworkGraph() {
+  const { analysis } = usePcapAnalysis();
   const [graph, setGraph] = useState(null);
   const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -15,7 +17,7 @@ export function useNetworkGraph() {
         getNetworkGraph(),
         getNetworkActivity(),
       ]);
-      setGraph(gRes);
+      setGraph(buildPcapTopologyGraph(analysis?.packet_attribution) || gRes);
       setActivity(aRes);
     } catch (err) {
       console.error('Failed to fetch network graph:', err);
@@ -23,7 +25,7 @@ export function useNetworkGraph() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [analysis]);
 
   useEffect(() => {
     fetchGraph();

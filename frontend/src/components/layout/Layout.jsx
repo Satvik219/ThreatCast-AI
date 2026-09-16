@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { PcapAnalysisProvider } from '../../context/PcapAnalysisContext';
 
 export default function Layout({ onScenarioChange, lastUpdated, activeScenario }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -13,7 +14,8 @@ export default function Layout({ onScenarioChange, lastUpdated, activeScenario }
   };
 
   return (
-    <div className="min-h-screen bg-[#fbf8f4] text-cyber-brown-900 flex relative selection:bg-amber-500 selection:text-white">
+    <PcapAnalysisProvider>
+      <div className="min-h-screen bg-[#fbf8f4] text-cyber-brown-900 flex relative selection:bg-amber-500 selection:text-white">
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -33,6 +35,7 @@ export default function Layout({ onScenarioChange, lastUpdated, activeScenario }
           />
         </main>
       </div>
-    </div>
+      </div>
+    </PcapAnalysisProvider>
   );
 }

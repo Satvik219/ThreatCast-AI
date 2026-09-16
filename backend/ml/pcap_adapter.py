@@ -1105,13 +1105,24 @@ def prepare_uploaded_pcap(
         timeline_end=timeline_end,
     )
 
-    if len(dataframe) < SEQUENCE_LENGTH:
+    original_state_count = len(dataframe)
 
+    if original_state_count == 0:
         raise ValueError(
-            f"PCAP produced only {len(dataframe)} "
-            f"temporal states. At least "
-            f"{SEQUENCE_LENGTH} states are required "
-            f"for model inference."
+            "PCAP produced no temporal states. "
+            "Ensure the capture contains decodable network packets."
+        )
+
+    if original_state_count < SEQUENCE_LENGTH:
+        padding_count = SEQUENCE_LENGTH - original_state_count
+        first_state = dataframe.iloc[[0]].copy()
+        padding = pd.concat(
+            [first_state] * padding_count,
+            ignore_index=True,
+        )
+        dataframe = pd.concat(
+            [padding, dataframe],
+            ignore_index=True,
         )
 
     sequence = dataframe_to_sequence(
@@ -1142,6 +1153,7 @@ def prepare_uploaded_pcap(
             "timestamps": timestamps,
             "sequence": sequence,
             "state_count": len(dataframe),
+            "original_state_count": original_state_count,
         },
 
         "packet_evidence": packet_evidence,

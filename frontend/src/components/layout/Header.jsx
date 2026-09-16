@@ -1,6 +1,7 @@
 import React from 'react';
-import { Menu, Clock, Activity, Radio } from 'lucide-react';
+import { Menu, Clock, Activity, Radio, Upload, X } from 'lucide-react';
 import RefreshButton from '../common/RefreshButton';
+import { usePcapAnalysis } from '../../context/PcapAnalysisContext';
 
 export default function Header({
   onToggleSidebar,
@@ -9,6 +10,14 @@ export default function Header({
   lastUpdated,
   activeScenario,
 }) {
+  const { fileName, loading, error, uploadPcap, clearPcap } = usePcapAnalysis();
+
+  const handlePcapChange = (event) => {
+    const file = event.target.files?.[0];
+    if (file) uploadPcap(file);
+    event.target.value = '';
+  };
+
   return (
     <header className="sticky top-0 z-30 h-16 border-b border-white/[0.08] bg-[#030405]/90 backdrop-blur-xl">
       <div className="h-full px-4 md:px-8 flex items-center justify-between">
@@ -128,6 +137,21 @@ export default function Header({
               loading={refreshing}
             />
           </div>
+
+          <label className="flex h-9 cursor-pointer items-center gap-2 rounded-xl border border-[#00E5FF]/25 bg-[#00E5FF]/[0.06] px-3 text-[10px] font-semibold uppercase tracking-wider text-[#7DEBFF] hover:bg-[#00E5FF]/[0.12]">
+            <Upload className="h-3.5 w-3.5" />
+            <span>{loading ? 'Analyzing...' : 'Upload PCAP'}</span>
+            <input type="file" accept=".pcap,.pcapng,.cap,.csv" className="hidden" onChange={handlePcapChange} disabled={loading} />
+          </label>
+
+          {fileName && (
+            <button type="button" onClick={clearPcap} title="Clear active PCAP" className="flex h-9 max-w-40 items-center gap-1.5 rounded-xl border border-[#00FF9C]/20 bg-[#00FF9C]/[0.05] px-2.5 text-[9px] font-mono text-[#00FF9C]">
+              <span className="truncate">{fileName}</span>
+              <X className="h-3 w-3 shrink-0" />
+            </button>
+          )}
+
+          {error && <span className="hidden max-w-44 truncate text-[9px] text-[#FF6B7A] xl:inline" title={error}>{error}</span>}
 
           {/* Profile */}
           <div

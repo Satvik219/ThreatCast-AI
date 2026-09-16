@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { usePcapAnalysis } from "../context/PcapAnalysisContext";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 const WARNING_THRESHOLD = 0.08;
@@ -39,6 +40,7 @@ export default function AttackForecast() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { analysis, fileName } = usePcapAnalysis();
 
 
   const loadForecast = async () => {
@@ -101,9 +103,25 @@ export default function AttackForecast() {
 
   useEffect(() => {
 
+    if (analysis?.world_model?.rollout?.length) {
+      const first = analysis.world_model.rollout[0];
+      const probability = Number(first.risk_probability ?? first.risk_probability_percent ?? 0);
+      setForecast({
+        current_state: {
+          stage_name: first.predicted_attack ? "Early Warning" : "Normal Network State",
+          confidence: probability > 1 ? probability / 100 : probability,
+          probability_distribution: { "Early Warning": probability > 1 ? probability / 100 : probability },
+        },
+        last_updated: new Date().toISOString(),
+      });
+      setComparison(null);
+      setLoading(false);
+      return;
+    }
+
     loadForecast();
 
-  }, []);
+  }, [analysis]);
 
 
   if (loading && !forecast) {
@@ -180,7 +198,7 @@ export default function AttackForecast() {
           <div>
 
             <h1 className="text-3xl font-bold tracking-tight text-[#301a0a]">
-              CTU13 LSTM Early-Warning Forecast
+              {fileName ? "Uploaded PCAP Early-Warning Forecast" : "CTU13 LSTM Early-Warning Forecast"}
             </h1>
 
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[#806b58]">
