@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { usePcapAnalysis, buildUploadedRuleComparison } from '../context/PcapAnalysisContext';
+import { getBlockchainDisagreements, resolveBlockchainDisagreement } from '../services/api';
 
 
 export default function Disagreements() {
@@ -8,6 +9,21 @@ export default function Disagreements() {
   const activeComparison = pcapComparison || null;
   const isConnected = Boolean(activeComparison);
   const disagreementCount = activeComparison?.total_disagreements ?? 0;
+  const [ledgerRecords, setLedgerRecords] = useState([]);
+  const [ledgerError, setLedgerError] = useState('');
+
+  const loadLedger = async () => {
+    try {
+      setLedgerRecords(await getBlockchainDisagreements());
+      setLedgerError('');
+    } catch (error) {
+      setLedgerError(error?.response?.data?.detail || error.message || 'Unable to load disagreement ledger.');
+    }
+  };
+
+  useEffect(() => {
+    loadLedger();
+  }, [analysis]);
 
   return (
     <div className="min-h-screen bg-[#fcfaf6] px-5 py-6 md:px-8">
@@ -38,6 +54,8 @@ export default function Disagreements() {
         </div>
 
       </div>
+
+      <LedgerReviewPanel records={ledgerRecords} error={ledgerError} onResolved={loadLedger} />
 
 
       {/* STATUS */}
@@ -195,5 +213,65 @@ export default function Disagreements() {
       </div>
 
     </div>
+  );
+}
+
+function LedgerReviewPanel({ records, error, onResolved }) {
+  const [busyId, setBusyId] = useState('');
+  const [reason, setReason] = useState({});
+
+  async function resolve(eventId, decision) {
+    const resolutionReason = reason[eventId]?.trim();
+    if (!resolutionReason) return;
+    setBusyId(eventId);
+    try {
+      await resolveBlockchainDisagreement(eventId, {
+        analyst_decision: decision,
+        analyst_id: 'analyst-ui',
+        resolution_reason: resolutionReason,
+      });
+      setReason((current) => ({ ...current, [eventId]: '' }));
+      await onResolved();
+    } finally {
+      setBusyId('');
+    }
+  }
+
+  return (
+    <section className="mb-6 rounded-2xl border border-[#ebdcc7] bg-white p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div className="text-xs font-bold uppercase tracking-wider text-[#a94d08]">Human analyst review</div>
+          <h2 className="mt-2 text-xl font-bold text-[#301a0a]">Ledgered disagreements</h2>
+          <p className="mt-1 text-sm text-[#806b58]">Stored model-rule disagreements from uploaded files.</p>
+        </div>
+        <span className="rounded-full border border-[#ecd7a5] bg-[#fff7d9] px-3 py-1 text-xs font-semibold text-[#a94d08]">{records.length} RECORDS</span>
+      </div>
+
+      {error && <p className="mt-4 text-sm text-red-700">{error}</p>}
+      {!error && records.length === 0 && <p className="mt-5 rounded-xl bg-[#fcfaf6] p-4 text-sm text-[#806b58]">Upload a CSV or PCAP that produces a model-rule mismatch to create the first ledger record.</p>}
+
+      <div className="mt-5 space-y-4">
+        {records.map((record) => (
+          <div key={record.eventId} className="rounded-xl border border-[#ebdcc7] bg-[#fcfaf6] p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="font-mono text-xs font-bold text-[#301a0a]">{record.eventId}</p>
+                <p className="mt-1 text-xs font-semibold text-[#806b58]">File: {record.evidence?.filename || record.networkStateId || 'Uploaded file'}</p>
+                <p className="mt-1 text-sm text-[#5f4b39]">AI: {record.aiLabel} vs Rule: {record.ruleOutput}</p>
+              </div>
+              <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold ${record.disagreementType === 'MODEL_RULE_AGREEMENT' ? 'border-[#d9f99d] bg-[#f0fdf4] text-[#4d7c0f]' : 'border-[#fdba74] bg-[#fff7ed] text-[#c2410c]'}`}>{record.disagreementType === 'MODEL_RULE_AGREEMENT' ? 'AGREEMENT' : 'DISAGREEMENT'} · {record.status}</span>
+            </div>
+            {record.status !== 'RESOLVED' && (
+              <div className="mt-4 flex flex-col gap-2 md:flex-row">
+                <input value={reason[record.eventId] || ''} onChange={(event) => setReason((current) => ({ ...current, [record.eventId]: event.target.value }))} placeholder="Analyst resolution reason" className="min-w-0 flex-1 rounded-lg border border-[#ebdcc7] bg-white px-3 py-2 text-sm text-[#301a0a]" />
+                <button type="button" disabled={busyId === record.eventId} onClick={() => resolve(record.eventId, 'TRUE_POSITIVE')} className="rounded-lg bg-[#166534] px-3 py-2 text-xs font-bold text-white disabled:opacity-50">True positive</button>
+                <button type="button" disabled={busyId === record.eventId} onClick={() => resolve(record.eventId, 'FALSE_POSITIVE')} className="rounded-lg bg-[#9a3412] px-3 py-2 text-xs font-bold text-white disabled:opacity-50">False positive</button>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

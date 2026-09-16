@@ -166,6 +166,32 @@ export const getLiveExplainability = (sequence) =>
     .then((res) => res.data);
 
 // -----------------------------------------------------------------------------
+// BLOCKCHAIN AUDIT LEDGER
+// -----------------------------------------------------------------------------
+
+export const getBlockchainStatus = () =>
+  apiClient.get('/api/blockchain/status').then((res) => res.data);
+
+export const verifyBlockchainEvidence = (evidence, evidenceHash) =>
+  apiClient
+    .post('/api/blockchain/evidence/verify', {
+      evidence,
+      evidence_hash: evidenceHash,
+    })
+    .then((res) => res.data);
+
+export const createBlockchainDisagreement = (record) =>
+  apiClient.post('/api/blockchain/disagreements', record).then((res) => res.data);
+
+export const getBlockchainDisagreements = () =>
+  apiClient.get('/api/blockchain/disagreements').then((res) => res.data);
+
+export const resolveBlockchainDisagreement = (eventId, resolution) =>
+  apiClient
+    .post(`/api/blockchain/disagreements/${eventId}/resolve`, resolution)
+    .then((res) => res.data);
+
+// -----------------------------------------------------------------------------
 // Demo Attack Simulation
 // -----------------------------------------------------------------------------
 
@@ -219,6 +245,11 @@ export default {
   getIncident,
   getExplainability,
   getLiveExplainability,
+  getBlockchainStatus,
+  verifyBlockchainEvidence,
+  createBlockchainDisagreement,
+  getBlockchainDisagreements,
+  resolveBlockchainDisagreement,
   simulateAttack,
   resetSimulation,
   getCTU13Demo,

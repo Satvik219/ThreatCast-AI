@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
+import { createBlockchainDisagreement } from '../services/api';
 
 const PcapAnalysisContext = createContext(null);
 
@@ -90,6 +91,9 @@ export function buildPcapRuleComparison(analysis) {
     model_alert: modelAlert,
     rule_alert: ruleAlert,
     flagged_flow_count: flaggedCount,
+    model_prediction: modelAlert ? 'Early Warning' : 'No Early Warning',
+    rule_output: ruleAlert ? `${flaggedCount} flagged flow(s)` : 'No flagged flows',
+    rule_severity: ruleAlert ? 'High' : 'Low',
   };
 }
 
@@ -140,6 +144,9 @@ export function buildUploadedRuleComparison(analysis) {
     model_alert: modelAlert,
     rule_alert: ruleAlert,
     flagged_flow_count: triggeredRules,
+    model_prediction: modelAlert ? 'Early Warning' : 'No Early Warning',
+    rule_output: `${triggeredRules} feature rule(s) triggered`,
+    rule_severity: ruleAlert ? 'High' : 'Low',
   };
 }
 
@@ -163,6 +170,40 @@ export function PcapAnalysisProvider({ children }) {
       }
       setAnalysis(data);
       setFileName(file.name);
+
+      const comparison = buildUploadedRuleComparison(data);
+      if (comparison) {
+        const item = comparison.disagreements[0] || {
+          model_prediction: comparison.model_prediction,
+          model_confidence: data.world_model?.rollout?.[0]?.risk_probability || 0,
+          rule_output: comparison.rule_output,
+          rule_severity: comparison.rule_severity,
+          observed_signals: [],
+        };
+        try {
+          await createBlockchainDisagreement({
+            event_id: `${file.name}-${Date.now()}`.replace(/[^a-zA-Z0-9_-]/g, '_'),
+            network_state_id: `${file.name}:latest-window`,
+            prediction_id: `${file.name}:world-model:${Date.now()}`,
+            ai_label: item.model_prediction,
+            ai_confidence: Number(item.model_confidence) || 0,
+            ai_threshold: 0.08,
+            rule_id: comparison.rule_alert ? 'uploaded-flow-or-feature-thresholds' : 'uploaded-no-rule-trigger',
+            rule_output: item.rule_output,
+            rule_severity: item.rule_severity,
+            disagreement_type: comparison.total_disagreements > 0 ? 'MODEL_RULE_DECISION_MISMATCH' : 'MODEL_RULE_AGREEMENT',
+            severity: item.rule_severity,
+            evidence: {
+              filename: file.name,
+              model: data.world_model?.rollout?.[0] || null,
+              packet_attribution: data.packet_attribution || null,
+              input: data.input || null,
+            },
+          });
+        } catch (ledgerError) {
+          console.warn('Disagreement could not be written to the audit ledger:', ledgerError);
+        }
+      }
     } catch (uploadError) {
       setError(uploadError.message || 'Unable to analyze this PCAP.');
     } finally {
